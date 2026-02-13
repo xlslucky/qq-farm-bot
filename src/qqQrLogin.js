@@ -66,7 +66,7 @@ function printQr(url) {
     console.log('');
     console.log('[扫码登录] 请用 QQ 扫描下方二维码确认登录:');
     qrcodeTerminal.generate(url, { small: true });
-    console.log(`[扫码登录] 若二维码显示异常，可直接打开链接: ${url}`);
+    console.log(`[扫码登录] 若二维码显示异常，可直接打开链接: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`);
     console.log('');
 }
 
