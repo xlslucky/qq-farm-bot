@@ -7,7 +7,7 @@ const { types } = require('./proto');
 const { sendMsgAsync, getUserState, networkEvents } = require('./network');
 const { toLong, toNum, getServerTimeSec, log, logWarn, sleep } = require('./utils');
 const { getCurrentPhase, setOperationLimitsCallback } = require('./farm');
-const { getPlantName } = require('./gameConfig');
+const { getPlantName, getPlantGrowTime } = require('./gameConfig');
 
 // ============ 内部状态 ============
 let isCheckingFriends = false;
@@ -332,10 +332,15 @@ function analyzeFriendLands(lands, myGid, friendName = '') {
 
         if (phaseVal === PlantPhase.MATURE) {
             if (plant.stealable) {
-                result.stealable.push(id);
                 const plantId = toNum(plant.id);
-                const plantName = getPlantName(plantId) || plant.name || '未知';
-                result.stealableInfo.push({ landId: id, plantId, name: plantName });
+                // 只偷取成熟时间 >= 8小时(28800秒)的高价值作物，或新春红包(1021542)
+                // const plantGrowTime = getPlantGrowTime(plantId);
+                // if (plantGrowTime >= 28800 || plantId === 1021542) {
+                if (getPlantGrowTime(plantId) >= 43200 || plantId === 1021542) {
+                    result.stealable.push(id);
+                    const plantName = getPlantName(plantId) || plant.name || '未知';
+                    result.stealableInfo.push({ landId: id, plantId, name: plantName });
+                }
             } else if (showDebug) {
                 console.log(`  [${friendName}] 土地#${id}: 成熟但stealable=false (可能已被偷过)`);
             }
@@ -395,7 +400,7 @@ async function visitFriend(friend, totalActions, myGid) {
     }
 
     const status = analyzeFriendLands(lands, myGid, name);
-    
+
     if (showDebug) {
         console.log(`  [${name}] 分析结果: 可偷=${status.stealable.length} 浇水=${status.needWater.length} 除草=${status.needWeed.length} 除虫=${status.needBug.length}`);
         console.log(`========== 调试结束 ==========\n`);
@@ -524,7 +529,7 @@ async function checkFriends() {
         const priorityFriends = [];  // 有可偷/可帮助的好友
         const otherFriends = [];     // 其他好友（仅用于放虫放草）
         const visitedGids = new Set();
-        
+
         for (const f of friends) {
             const gid = toNum(f.gid);
             if (gid === state.gid) continue;
@@ -564,10 +569,10 @@ async function checkFriends() {
                 console.log(`[调试] 好友 [${name}] 加入列表 (位置: ${priorityFriends.length})`);
             }
         }
-        
+
         // 合并列表：优先好友在前
         const friendsToVisit = [...priorityFriends, ...otherFriends];
-        
+
         // 调试：检查目标好友位置
         if (DEBUG_FRIEND_LANDS && typeof DEBUG_FRIEND_LANDS === 'string') {
             const idx = friendsToVisit.findIndex(f => f.name === DEBUG_FRIEND_LANDS);
@@ -591,9 +596,9 @@ async function checkFriends() {
             if (showDebug) {
                 console.log(`[调试] 准备访问 [${friend.name}] (${i + 1}/${friendsToVisit.length})`);
             }
-            try { 
-                await visitFriend(friend, totalActions, state.gid); 
-            } catch (e) { 
+            try {
+                await visitFriend(friend, totalActions, state.gid);
+            } catch (e) {
                 if (showDebug) {
                     console.log(`[调试] 访问 [${friend.name}] 出错: ${e.message}`);
                 }
@@ -613,7 +618,7 @@ async function checkFriends() {
         if (totalActions.water > 0) summary.push(`浇水${totalActions.water}`);
         if (totalActions.putBug > 0) summary.push(`放虫${totalActions.putBug}`);
         if (totalActions.putWeed > 0) summary.push(`放草${totalActions.putWeed}`);
-        
+
         if (summary.length > 0) {
             log('好友', `巡查 ${friendsToVisit.length} 人 → ${summary.join('/')}`);
         }
