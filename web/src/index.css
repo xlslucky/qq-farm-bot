@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+:root {
+  --background: 40 33% 97%;
+  --foreground: 30 30% 20%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 30 30% 20%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 30 30% 20%;
+  
+  --primary: 340 75% 75%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 35 40% 90%;
+  --secondary-foreground: 30 30% 25%;
+  
+  --muted: 35 30% 88%;
+  --muted-foreground: 30 20% 45%;
+  
+  --accent: 150 40% 85%;
+  --accent-foreground: 30 30% 20%;
+  
+  --destructive: 350 75% 65%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 35 25% 80%;
+  --input: 35 25% 80%;
+  --ring: 340 75% 75%;
+  
+  --radius: 1rem;
+  
+  --success: 150 50% 45%;
+  --warning: 40 80% 60%;
+  --info: 200 60% 65%;
+}
+
+.dark {
+  --background: 30 15% 12%;
+  --foreground: 35 30% 90%;
+  
+  --card: 30 12% 15%;
+  --card-foreground: 35 30% 90%;
+  
+  --popover: 30 12% 15%;
+  --popover-foreground: 35 30% 90%;
+  
+  --primary: 340 70% 60%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 30 15% 20%;
+  --secondary-foreground: 35 30% 90%;
+  
+  --muted: 30 12% 20%;
+  --muted-foreground: 35 20% 60%;
+  
+  --accent: 150 30% 25%;
+  --accent-foreground: 35 30% 90%;
+  
+  --destructive: 350 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 30 15% 25%;
+  --input: 30 15% 25%;
+  --ring: 340 70% 60%;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .cream-shadow {
+    box-shadow: 
+      0 2px 8px rgba(139, 119, 101, 0.12),
+      0 4px 16px rgba(139, 119, 101, 0.08);
+  }
+  
+  .cream-shadow-sm {
+    box-shadow: 
+      0 1px 4px rgba(139, 119, 101, 0.08),
+      0 2px 8px rgba(139, 119, 101, 0.04);
+  }
+  
+  .cream-shadow-lg {
+    box-shadow: 
+      0 4px 16px rgba(139, 119, 101, 0.15),
+      0 8px 32px rgba(139, 119, 101, 0.1);
+  }
+  
+  .cream-card {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 2px 8px rgba(139, 119, 101, 0.1);
+  }
+  
+  .soft-border {
+    border: 1.5px solid hsl(var(--border));
+  }
+  
+  .cute-btn {
+    border-radius: 9999px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .cute-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 119, 101, 0.15);
+  }
+  
+  .cute-btn:active {
+    transform: translateY(0);
+  }
+  
+  .cute-input {
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+  }
+  
+  .cute-input:focus {
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+  }
+  
+  .status-dot {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  
+  .float-animation {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+  
+  .wiggle {
+    animation: wiggle 0.5s ease-in-out;
+  }
+  
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+}
