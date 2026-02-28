@@ -102,6 +102,8 @@ export interface Settings {
   autoWeed: boolean;
   autoPest: boolean;
   autoWater: boolean;
+  autoUpgrade: boolean;
+  autoUnlock: boolean;
   autoFriendVisit: boolean;
   autoHelp: boolean;
   autoSteal: boolean;

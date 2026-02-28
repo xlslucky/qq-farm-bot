@@ -246,6 +246,16 @@ function getItemName(itemId) {
     return `未知物品`;
 }
 
+function getAllPlants() {
+    loadConfigs();
+    return plantConfig || [];
+}
+
+function getAllItems() {
+    loadConfigs();
+    return itemInfoConfig || [];
+}
+
 // 启动时加载配置
 loadConfigs();
 
@@ -267,5 +277,10 @@ module.exports = {
     getFruitName,
     getPlantByFruitId,
     // 物品配置
-    getItemName
+    getItemName,
+    getItemInfoById,
+    // 获取所有植物配置
+    getAllPlants,
+    // 获取所有物品配置
+    getAllItems
 };

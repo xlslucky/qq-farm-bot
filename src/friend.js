@@ -2,12 +2,14 @@
  * 好友农场操作 - 进入/离开/帮忙/偷菜/巡查
  */
 
+const WebSocket = require('ws');
 const { CONFIG, PlantPhase, PHASE_NAMES } = require('./config');
 const { types } = require('./proto');
-const { sendMsgAsync, getUserState, networkEvents } = require('./network');
+const { sendMsgAsync, getUserState, networkEvents, getWs } = require('./network');
 const { toLong, toNum, getServerTimeSec, log, logWarn, sleep } = require('./utils');
 const { getCurrentPhase, setOperationLimitsCallback } = require('./farm');
 const { getPlantName, getPlantGrowTime } = require('./gameConfig');
+const { farmState } = require('./state');
 
 // ============ 内部状态 ============
 let isCheckingFriends = false;
@@ -46,10 +48,20 @@ const ENABLE_PUT_BAD_THINGS = false;  // 无效！！！开启后会多次访问
 
 // ============ 好友 API ============
 
-async function getAllFriends() {
+async function getAllFriends(force = false) {
+    const ws = getWs();
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        return null;
+    }
+    
     const body = types.GetAllFriendsRequest.encode(types.GetAllFriendsRequest.create({})).finish();
     const { body: replyBody } = await sendMsgAsync('gamepb.friendpb.FriendService', 'GetAll', body);
-    return types.GetAllFriendsReply.decode(replyBody);
+    const reply = types.GetAllFriendsReply.decode(replyBody);
+    // 更新 Web API 状态
+    if (reply.game_friends) {
+        farmState.setFriends(reply.game_friends);
+    }
+    return reply;
 }
 
 // ============ 好友申请 API (微信同玩) ============
@@ -410,47 +422,50 @@ async function visitFriend(friend, totalActions, myGid) {
     const actions = [];
 
     // 帮助操作: 只在有经验时执行 (如果启用了 HELP_ONLY_WITH_EXP)
-    if (status.needWeed.length > 0) {
-        const shouldHelp = !HELP_ONLY_WITH_EXP || canGetExp(10005);  // 10005=除草
-        if (shouldHelp) {
-            markExpCheck(10005);
-            let ok = 0;
-            for (const landId of status.needWeed) {
-                try { await helpWeed(gid, [landId]); ok++; } catch (e) { /* ignore */ }
-                await sleep(100);
-            }
-            if (ok > 0) { actions.push(`草${ok}`); totalActions.weed += ok; }
-        }
-    }
 
-    if (status.needBug.length > 0) {
-        const shouldHelp = !HELP_ONLY_WITH_EXP || canGetExp(10006);  // 10006=除虫
-        if (shouldHelp) {
-            markExpCheck(10006);
-            let ok = 0;
-            for (const landId of status.needBug) {
-                try { await helpInsecticide(gid, [landId]); ok++; } catch (e) { /* ignore */ }
-                await sleep(100);
+    if (CONFIG.autoHelp) {
+        if (status.needWeed.length > 0) {
+            const shouldHelp = !HELP_ONLY_WITH_EXP || canGetExp(10005);  // 10005=除草
+            if (shouldHelp) {
+                markExpCheck(10005);
+                let ok = 0;
+                for (const landId of status.needWeed) {
+                    try { await helpWeed(gid, [landId]); ok++; } catch (e) { /* ignore */ }
+                    await sleep(100);
+                }
+                if (ok > 0) { actions.push(`草${ok}`); totalActions.weed += ok; }
             }
-            if (ok > 0) { actions.push(`虫${ok}`); totalActions.bug += ok; }
         }
-    }
 
-    if (status.needWater.length > 0) {
-        const shouldHelp = !HELP_ONLY_WITH_EXP || canGetExp(10007);  // 10007=浇水
-        if (shouldHelp) {
-            markExpCheck(10007);
-            let ok = 0;
-            for (const landId of status.needWater) {
-                try { await helpWater(gid, [landId]); ok++; } catch (e) { /* ignore */ }
-                await sleep(100);
+        if (status.needBug.length > 0) {
+            const shouldHelp = !HELP_ONLY_WITH_EXP || canGetExp(10006);  // 10006=除虫
+            if (shouldHelp) {
+                markExpCheck(10006);
+                let ok = 0;
+                for (const landId of status.needBug) {
+                    try { await helpInsecticide(gid, [landId]); ok++; } catch (e) { /* ignore */ }
+                    await sleep(100);
+                }
+                if (ok > 0) { actions.push(`虫${ok}`); totalActions.bug += ok; }
             }
-            if (ok > 0) { actions.push(`水${ok}`); totalActions.water += ok; }
+        }
+
+        if (status.needWater.length > 0) {
+            const shouldHelp = !HELP_ONLY_WITH_EXP || canGetExp(10007);  // 10007=浇水
+            if (shouldHelp) {
+                markExpCheck(10007);
+                let ok = 0;
+                for (const landId of status.needWater) {
+                    try { await helpWater(gid, [landId]); ok++; } catch (e) { /* ignore */ }
+                    await sleep(100);
+                }
+                if (ok > 0) { actions.push(`水${ok}`); totalActions.water += ok; }
+            }
         }
     }
 
     // 偷菜: 始终执行
-    if (status.stealable.length > 0) {
+    if (CONFIG.autoSteal && status.stealable.length > 0) {
         let ok = 0;
         const stolenPlants = [];
         for (let i = 0; i < status.stealable.length; i++) {
@@ -508,12 +523,31 @@ async function visitFriend(friend, totalActions, myGid) {
 async function checkFriends() {
     const state = getUserState();
     if (isCheckingFriends || !state.gid) return;
+    
+    const ws = getWs();
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+    
     isCheckingFriends = true;
 
     // 检查是否跨日需要重置
     checkDailyReset();
 
     // 经验限制状态（移到有操作时才显示）
+
+    // 先获取好友列表（不管是否开启自动巡查）
+    try {
+        await getAllFriends();
+    } catch (e) {
+        console.error('[Friend] 获取好友列表失败:', e.message);
+    }
+
+    // 如果没有开启任何好友功能，则只获取列表不执行操作
+    if (!CONFIG.autoFriendVisit && !CONFIG.autoSteal && !CONFIG.autoHelp) {
+        isCheckingFriends = false;
+        return;
+    }
 
     try {
         const friendsReply = await getAllFriends();
@@ -651,6 +685,17 @@ function startFriendCheckLoop() {
     // 监听好友申请推送 (微信同玩)
     networkEvents.on('friendApplicationReceived', onFriendApplicationReceived);
 
+    // 监听设置更新
+    farmState.on('settingsUpdate', (settings) => {
+        console.log('[Friend] settingsUpdate received:', settings.autoHelp, settings.autoFriendVisit, settings.autoSteal);
+        if (settings.friendCheckInterval != null) {
+            CONFIG.friendCheckInterval = settings.friendCheckInterval * 1000;
+        }
+        if (settings.autoFriendVisit != null) CONFIG.autoFriendVisit = settings.autoFriendVisit;
+        if (settings.autoHelp != null) CONFIG.autoHelp = settings.autoHelp;
+        if (settings.autoSteal != null) CONFIG.autoSteal = settings.autoSteal;
+    });
+
     // 延迟 5 秒后启动循环，等待登录和首次农场检查完成
     friendCheckTimer = setTimeout(() => friendCheckLoop(), 5000);
 
@@ -717,4 +762,5 @@ async function acceptFriendsWithRetry(gids) {
 module.exports = {
     checkFriends, startFriendCheckLoop, stopFriendCheckLoop,
     checkAndAcceptApplications,
+    fetchFriends: getAllFriends,
 };

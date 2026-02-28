@@ -118,7 +118,8 @@ async function decodeMode(args) {
         if (args[i] === '--type' && args[i + 1]) { typeName = args[++i]; continue; }
         if (args[i] === '--hex') { isHex = true; continue; }
         if (args[i] === '--gate') { isGateWrapped = true; continue; }
-        if (!inputData) inputData = args[i];
+        // 删除中间空格
+        if (!inputData) inputData = args[i].replace(/\s/g, '');
     }
 
     if (!inputData) {

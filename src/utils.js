@@ -4,6 +4,7 @@
 
 const Long = require('long');
 const { RUNTIME_HINT_MASK, RUNTIME_HINT_DATA } = require('./config');
+const { farmState } = require('./state');
 
 // ============ 服务器时间状态 ============
 let serverTimeMs = 0;
@@ -50,11 +51,13 @@ function toTimeSec(val) {
 
 // ============ 日志 ============
 function log(tag, msg) {
-    console.log(`[${now()}] [${tag}] ${msg}`);
+    console.log(`[${tag}] ${msg}`);
+    farmState.addLog({ level: 'info', tag, message: msg });
 }
 
 function logWarn(tag, msg) {
-    console.log(`[${now()}] [${tag}] ⚠ ${msg}`);
+    console.log(`[${tag}] ⚠ ${msg}`);
+    farmState.addLog({ level: 'warn', tag, message: msg });
 }
 
 // ============ 异步工具 ============

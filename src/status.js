@@ -3,6 +3,7 @@
  */
 
 const { getLevelExpTable, getLevelExpProgress } = require('./gameConfig');
+const { farmState } = require('./state');
 
 // ============ 状态数据 ============
 const statusData = {
@@ -135,6 +136,14 @@ function renderStatusBar() {
  */
 function updateStatus(data) {
     let changed = false;
+    // 更新 Web API 状态
+    farmState.setUser({
+        gid: data.gid || farmState.user?.gid,
+        name: data.name || farmState.user?.name || statusData.name,
+        level: data.level || farmState.user?.level || statusData.level,
+        gold: data.gold || farmState.user?.gold || statusData.gold,
+        exp: data.exp || farmState.user?.exp || statusData.exp,
+    });
     for (const key of Object.keys(data)) {
         if (statusData[key] !== data[key]) {
             statusData[key] = data[key];

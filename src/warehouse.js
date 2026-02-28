@@ -3,6 +3,7 @@
  * 协议说明：BagReply 使用 item_bag（ItemBag），item_bag.items 才是背包物品列表
  */
 
+const { CONFIG } = require('./config');
 const { types } = require('./proto');
 const { sendMsgAsync } = require('./network');
 const { toLong, toNum, log, logWarn, emitRuntimeHint } = require('./utils');
@@ -147,6 +148,7 @@ async function debugSellFruits() {
 }
 
 function startSellLoop(interval = 60000) {
+    if (!CONFIG.autoSell) return;
     if (sellTimer) return;
     sellInterval = interval;
     setTimeout(() => {

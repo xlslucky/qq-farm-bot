@@ -1081,6 +1081,8 @@ function SettingsPage() {
             { key: 'autoWeed', label: '🌿 自动除草' },
             { key: 'autoPest', label: '🐛 自动除虫' },
             { key: 'autoWater', label: '💧 自动浇水' },
+            { key: 'autoUpgrade', label: '⬆️ 自动升级' },
+            { key: 'autoUnlock', label: '🔓 自动解锁' },
             { key: 'autoSell', label: '💰 自动出售' },
           ].map((item) => (
             <label key={item.key} className="flex items-center gap-2 cursor-pointer">
@@ -1137,6 +1139,8 @@ function StartPage() {
     autoWeed: true,
     autoPest: true,
     autoWater: true,
+    autoUpgrade: true,
+    autoUnlock: true,
     autoSell: false,
     autoFriendVisit: false,
     autoHelp: false,
@@ -1283,6 +1287,8 @@ function StartPage() {
                 { key: 'autoWeed', label: '🌿 自动除草' },
                 { key: 'autoPest', label: '🐛 自动除虫' },
                 { key: 'autoWater', label: '💧 自动浇水' },
+                { key: 'autoUpgrade', label: '⬆️ 自动升级' },
+                { key: 'autoUnlock', label: '🔓 自动解锁' },
                 { key: 'autoSell', label: '💰 自动出售' },
               ].map((item) => (
                 <label key={item.key} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-muted/50 transition-colors">

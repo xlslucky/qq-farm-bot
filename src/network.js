@@ -8,6 +8,7 @@ const { CONFIG } = require('./config');
 const { types } = require('./proto');
 const { toLong, toNum, syncServerTime, log, logWarn } = require('./utils');
 const { updateStatusFromLogin, updateStatusGold, updateStatusLevel } = require('./status');
+const { farmState } = require('./state');
 
 // ============ 事件发射器 (用于推送通知) ============
 const networkEvents = new EventEmitter();
@@ -344,6 +345,8 @@ function sendLogin(onLoginSuccess) {
                     exp: userState.exp,
                 });
 
+                farmState.setConnected(true);
+
                 console.log('');
                 console.log('========== 登录成功 ==========');
                 console.log(`  GID:    ${userState.gid}`);
@@ -352,6 +355,7 @@ function sendLogin(onLoginSuccess) {
                 console.log(`  金币:   ${userState.gold}`);
                 if (reply.time_now_millis) {
                     syncServerTime(toNum(reply.time_now_millis));
+                    farmState.setServerTime(toNum(reply.time_now_millis));
                     console.log(`  时间:   ${new Date(toNum(reply.time_now_millis)).toLocaleString()}`);
                 }
                 console.log('===============================');
@@ -403,7 +407,10 @@ function startHeartbeat() {
             heartbeatMissCount = 0;
             try {
                 const reply = types.HeartbeatReply.decode(replyBody);
-                if (reply.server_time) syncServerTime(toNum(reply.server_time));
+                if (reply.server_time) {
+                    syncServerTime(toNum(reply.server_time));
+                    farmState.setServerTime(toNum(reply.server_time));
+                }
             } catch (e) { }
         });
     }, CONFIG.heartbeatInterval);
@@ -433,6 +440,10 @@ function connect(code, onLoginSuccess) {
     ws.on('close', (code, reason) => {
         console.log(`[WS] 连接关闭 (code=${code})`);
         cleanup();
+        if (code === 1006) {
+            console.log('[WS] 连接异常关闭，退出进程');
+            process.exit(1);
+        }
     });
 
     ws.on('error', (err) => {
@@ -443,6 +454,7 @@ function connect(code, onLoginSuccess) {
 function cleanup() {
     if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
     pendingCallbacks.clear();
+    farmState.setConnected(false);
 }
 
 function getWs() { return ws; }
