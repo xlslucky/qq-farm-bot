@@ -3,7 +3,8 @@
  */
 
 const Long = require('long');
-const { RUNTIME_HINT_MASK, RUNTIME_HINT_DATA } = require('./config');
+const axios = require('axios');
+const { RUNTIME_HINT_MASK, RUNTIME_HINT_DATA, CONFIG } = require('./config');
 const { farmState } = require('./state');
 
 // ============ 服务器时间状态 ============
@@ -60,6 +61,20 @@ function logWarn(tag, msg) {
     farmState.addLog({ level: 'warn', tag, message: msg });
 }
 
+async function pushNotification(title, content, opts = {}) {
+    if (!CONFIG.barkKey) return;
+    try {
+        const url = `https://api.day.app/${CONFIG.barkKey}/${encodeURIComponent(title)}/${encodeURIComponent(content)}`;
+        const params = new URLSearchParams();
+        if (opts.level) params.append('level', opts.level);
+        if (opts.call) params.append('call', opts.call);
+        const query = params.toString();
+        await axios.get(query ? `${url}?${query}` : url);
+    } catch (e) {
+        console.log(`[Bark] 推送失败: ${e.message}`);
+    }
+}
+
 // ============ 异步工具 ============
 function sleep(ms) {
     return new Promise(r => setTimeout(r, ms));
@@ -88,6 +103,6 @@ function emitRuntimeHint(force = false) {
 module.exports = {
     toLong, toNum, now,
     getServerTimeSec, syncServerTime, toTimeSec,
-    log, logWarn, sleep,
+    log, logWarn, pushNotification, sleep,
     emitRuntimeHint,
 };

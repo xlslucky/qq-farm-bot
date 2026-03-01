@@ -47,6 +47,7 @@ QQ经典农场 挂机脚本
   --wx                使用微信登录 (默认为QQ小程序)
   --interval          自己农场巡查完成后等待秒数, 默认1秒, 最低1秒
   --friend-interval   好友巡查完成后等待秒数, 默认1秒, 最低1秒
+  --bark              Bark 推送 key (设置后推送"推送"类型消息)
   --verify            验证proto定义
   --decode            解码PB数据 (运行 --decode 无参数查看详细帮助)
 
@@ -114,6 +115,9 @@ function parseArgs(args) {
         if (args[i] === '--friend-interval' && args[i + 1]) {
             const sec = parseInt(args[++i]);
             CONFIG.friendCheckInterval = Math.max(sec, 1) * 1000;
+        }
+        if (args[i] === '--bark' && args[i + 1]) {
+            CONFIG.barkKey = args[++i];
         }
         if (args[i] === '--api') {
             options.enableApi = true;

@@ -6,7 +6,7 @@ const WebSocket = require('ws');
 const EventEmitter = require('events');
 const { CONFIG } = require('./config');
 const { types } = require('./proto');
-const { toLong, toNum, syncServerTime, log, logWarn } = require('./utils');
+const { toLong, toNum, syncServerTime, log, logWarn, pushNotification } = require('./utils');
 const { updateStatusFromLogin, updateStatusGold, updateStatusLevel } = require('./status');
 const { farmState } = require('./state');
 
@@ -155,10 +155,13 @@ function handleNotify(msg) {
         // 被踢下线
         if (type.includes('Kickout')) {
             log('推送', `被踢下线! ${type}`);
+            let reason = '未知';
             try {
                 const notify = types.KickoutNotify.decode(eventBody);
-                log('推送', `原因: ${notify.reason_message || '未知'}`);
+                reason = notify.reason_message || '未知';
+                log('推送', `原因: ${reason}`);
             } catch (e) { }
+            pushNotification('QQ经典农场', `被踢下线! 原因: ${reason}`, { level: 'critical', call: '1' });
             return;
         }
 
