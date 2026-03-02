@@ -18,7 +18,6 @@ import {
   PowerOff,
   Sprout,
   Heart,
-  Gift,
   Coins,
   Sparkles,
   Sun,
@@ -555,6 +554,9 @@ function Dashboard() {
   const needBug = unlockedLands.filter((l: any) => (l.plant?.insect_owners?.length || 0) > 0);
 
   const levelExp = getLevelExp(roleLevels, user?.level || 1, user?.exp || 0);
+  const toNextLevel = levelExp.required - levelExp.current;
+  const landCount = unlockedLands.length;
+  const avgExpPerLand = landCount > 0 ? Math.ceil(toNextLevel / landCount) : 0;
 
   return (
     <div className="space-y-4">
@@ -589,13 +591,17 @@ function Dashboard() {
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <Sparkles className="h-3 w-3 text-purple-500 shrink-0" />
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden max-w-[100px]">
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden max-w-[100px]">
                       <div 
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full transition-all"
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all"
                         style={{ width: `${Math.min(100, (levelExp.current / levelExp.required) * 100)}%` }}
                       />
                     </div>
-                    <span className="text-[10px] text-purple-500 font-mono">{levelExp.current}/{levelExp.required}</span>
+                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">{levelExp.current}/{levelExp.required}</span>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    升级还需 <span className="text-purple-600 dark:text-purple-400 font-medium">{toNextLevel.toLocaleString()}</span> 经验
+                    {landCount > 0 && <span className="ml-2">（{landCount}块地平均 {avgExpPerLand.toLocaleString()}/块）</span>}
                   </div>
                 </div>
               </div>
@@ -770,72 +776,70 @@ function Friends() {
   const filteredFriends = search.trim()
     ? friends.filter((f: any) => f.name?.includes(search) || f.remark?.includes(search))
     : friends;
+  const sortedFriends = [...filteredFriends].sort((a: any, b: any) => (b.level || 0) - (a.level || 0));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Heart className="h-5 w-5 text-pink-500" />
-          好友列表 ({filteredFriends.length}/{friends.length})
+          好友列表 ({sortedFriends.length}/{friends.length})
         </h2>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="搜索好友..."
+            placeholder="搜索..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 w-40 rounded-full bg-muted/50"
+            className="pl-9 h-8 w-32 rounded-full bg-muted/50 text-sm"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        {filteredFriends.map((friend: any) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+        {sortedFriends.map((friend: any, index: number) => (
           <Card key={friend.gid} className="overflow-hidden hover:shadow-md transition-shadow">
-            <CardContent className="p-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 flex items-center justify-center shrink-0">
+            <CardContent className="p-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground w-4">{index + 1}</span>
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 flex items-center justify-center shrink-0">
                   {friend.avatar_url ? (
-                    <img src={friend.avatar_url} alt="" className="w-10 h-10 rounded-full" />
+                    <img src={friend.avatar_url} alt="" className="w-7 h-7 rounded-full" />
                   ) : (
-                    <span className="text-lg">🌸</span>
+                    <span className="text-sm">🌸</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold truncate">{friend.name}</p>
-                    <span className="text-xs text-muted-foreground shrink-0">Lv.{friend.level}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-purple-500 font-medium shrink-0">Lv.{friend.level}</span>
+                    <p className="text-sm font-semibold truncate">{friend.name}</p>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-amber-500">
-                      <Coins className="h-3 w-3" />
-                      {friend.gold?.toLocaleString() || 0}
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="text-amber-500">
+                      💰{friend.gold?.toLocaleString() || 0}
                     </span>
-                    {friend.plant?.steal_plant_num > 0 && (
-                      <span className="flex items-center gap-1 text-green-600">
-                        <Gift className="h-3 w-3" />
-                        可偷 {friend.plant.steal_plant_num}
-                      </span>
-                    )}
                   </div>
                 </div>
-                <div className="flex gap-1 shrink-0">
-                  {friend.plant?.dry_num > 0 && (
-                    <span className="text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-xs" title="干旱">💧</span>
-                  )}
-                  {friend.plant?.weed_num > 0 && (
-                    <span className="text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded text-xs" title="杂草">🌿</span>
-                  )}
-                  {friend.plant?.insect_num > 0 && (
-                    <span className="text-red-500 bg-red-50 dark:bg-red-900/30 px-1.5 py-0.5 rounded text-xs" title="害虫">🐛</span>
-                  )}
-                </div>
+              </div>
+              <div className="flex gap-1 mt-1 flex-wrap">
+                {friend.plant?.steal_plant_num > 0 && (
+                  <span className="text-[10px] text-green-600 bg-green-50 dark:bg-green-900/30 px-1 rounded" title="可偷">🎁{friend.plant.steal_plant_num}</span>
+                )}
+                {friend.plant?.dry_num > 0 && (
+                  <span className="text-[10px] text-blue-500" title="干旱">💧{friend.plant.dry_num}</span>
+                )}
+                {friend.plant?.weed_num > 0 && (
+                  <span className="text-[10px] text-yellow-500" title="杂草">🌿{friend.plant.weed_num}</span>
+                )}
+                {friend.plant?.insect_num > 0 && (
+                  <span className="text-[10px] text-red-500" title="害虫">🐛{friend.plant.insect_num}</span>
+                )}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
-      {filteredFriends.length === 0 && friends.length > 0 && (
+      {sortedFriends.length === 0 && friends.length > 0 && (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
             没有找到匹配的好友
