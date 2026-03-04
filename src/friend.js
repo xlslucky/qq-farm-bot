@@ -6,7 +6,7 @@ const WebSocket = require('ws');
 const { CONFIG, PlantPhase, PHASE_NAMES } = require('./config');
 const { types } = require('./proto');
 const { sendMsgAsync, getUserState, networkEvents, getWs } = require('./network');
-const { toLong, toNum, getServerTimeSec, log, logWarn, sleep } = require('./utils');
+const { toLong, toNum, getServerTimeSec, log, logWarn, sleep, toTimeSec } = require('./utils');
 const { getCurrentPhase, setOperationLimitsCallback } = require('./farm');
 const { getPlantName, getPlantGrowTime } = require('./gameConfig');
 const { farmState } = require('./state');
@@ -318,6 +318,8 @@ function analyzeFriendLands(lands, myGid, friendName = '') {
         canPutBug: [],   // 可以放虫
     };
 
+    const nowSec = getServerTimeSec();
+
     for (const land of lands) {
         const id = toNum(land.id);
         const plant = land.plant;
@@ -344,8 +346,15 @@ function analyzeFriendLands(lands, myGid, friendName = '') {
 
         if (phaseVal === PlantPhase.MATURE) {
             if (plant.stealable) {
+                // 成熟后20秒再偷取
+                const matureBeginTime = toTimeSec(currentPhase?.begin_time);
+                if (matureBeginTime > 0 && nowSec - matureBeginTime < 20) {
+                    if (showDebug) console.log(`  [${friendName}] 土地#${id}: 刚成熟，等待 ${20 - (nowSec - matureBeginTime)} 秒`);
+                    continue;
+                }
+
                 const plantId = toNum(plant.id);
-                // 只偷取成熟时间 >= 8小时(28800秒)的高价值作物，或新春红包(1021542)
+                // 只偷取成熟时间 >= 12小时(43200秒)的高价值作物，或新春红包(1021542)
                 // const plantGrowTime = getPlantGrowTime(plantId);
                 // if (plantGrowTime >= 28800 || plantId === 1021542) {
                 if (getPlantGrowTime(plantId) >= 43200 || plantId === 1021542) {
