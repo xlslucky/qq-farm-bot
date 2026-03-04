@@ -2,9 +2,11 @@
  * 配置常量与枚举定义
  */
 
+const clientVersion = '1.6.1.16_20251224'
+
 const CONFIG = {
     serverUrl: 'wss://gate-obt.nqf.qq.com/prod/ws',
-    clientVersion: '1.6.0.14_20251224',
+    clientVersion,
     platform: 'qq',              // 平台: qq 或 wx (可通过 --wx 切换为微信)
     os: 'iOS',
     heartbeatInterval: 25000,    // 心跳间隔 25秒
@@ -34,7 +36,7 @@ const CONFIG = {
     autoSell: true,         // 自动出售 - 每分钟自动出售仓库中的果实
 
     device_info: {
-        client_version: "1.6.0.14_20251224",
+        client_version: clientVersion,
         sys_software: 'iOS 26.2.1',
         network: 'wifi',
         memory: '7672',
