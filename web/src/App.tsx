@@ -24,7 +24,7 @@ import {
   Backpack,
   Search,
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -116,7 +116,14 @@ function getPhaseList(plant: any, plantConfig: any): { name: string; progress: n
   return result;
 }
 
-function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, any> }) {
+const landLevelStyles: Record<number, { bg: string; border: string; label: string; tag: string }> = {
+  1: { bg: 'bg-amber-50 dark:bg-amber-900/50', border: 'border-amber-200 dark:border-amber-700', label: '普通', tag: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' },
+  2: { bg: 'bg-rose-50 dark:bg-rose-900/50', border: 'border-rose-200 dark:border-rose-700', label: '红土', tag: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' },
+  3: { bg: 'bg-zinc-100 dark:bg-zinc-700/50', border: 'border-zinc-300 dark:border-zinc-600', label: '黑土', tag: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200' },
+  4: { bg: 'bg-yellow-100 dark:bg-yellow-700/50', border: 'border-yellow-300 dark:border-yellow-600', label: '金土', tag: 'bg-yellow-200 text-yellow-700 dark:bg-yellow-700/50 dark:text-yellow-200' },
+};
+
+const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, any> }) {
   const plantName = land.plant?.name || '空地';
   const plantConfig = plantsData[land.plant?.id];
   const phaseList = getPhaseList(land.plant, plantConfig);
@@ -124,13 +131,28 @@ function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, 
   const isWithered = land.plant?.phases?.some((p: any) => p.phase === 7);
   const landLevel = Number(land.level) || 1;
 
-  const landLevelStyles: Record<number, { bg: string; border: string; label: string; tag: string }> = {
-    1: { bg: 'bg-amber-50 dark:bg-amber-900/50', border: 'border-amber-200 dark:border-amber-700', label: '普通', tag: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' },
-    2: { bg: 'bg-rose-50 dark:bg-rose-900/50', border: 'border-rose-200 dark:border-rose-700', label: '红土', tag: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' },
-    3: { bg: 'bg-zinc-100 dark:bg-zinc-700/50', border: 'border-zinc-300 dark:border-zinc-600', label: '黑土', tag: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200' },
-    4: { bg: 'bg-yellow-100 dark:bg-yellow-700/50', border: 'border-yellow-300 dark:border-yellow-600', label: '金土', tag: 'bg-yellow-200 text-yellow-700 dark:bg-yellow-700/50 dark:text-yellow-200' },
-  };
   const levelStyle = landLevelStyles[landLevel] || landLevelStyles[1];
+
+  const getBuffInfo = useCallback(() => {
+    const buff = land.buff;
+    if (!buff) return '';
+    const parts: string[] = [];
+    if (buff.plant_exp_bonus) {
+      const val = parseInt(buff.plant_exp_bonus) / 100;
+      parts.push(`经验+${val}%`);
+    }
+    if (buff.planting_time_reduction) {
+      const val = parseInt(buff.planting_time_reduction) / 100;
+      parts.push(`加速${val}%`);
+    }
+    if (buff.plant_yield_bonus) {
+      const val = parseInt(buff.plant_yield_bonus) / 10000 + 1;
+      parts.push(`产量x${val.toFixed(1)}`);
+    }
+    return parts.length > 0 ? parts.join(' | ') : '';
+  }, [land.buff]);
+
+  const buffInfo = getBuffInfo();
 
   const growPhasesList: { name: string; hours: number }[] = (plantConfig?.grow_phases?.split(';').filter((t: string) => t).map((txt: string) => {
     const parts = txt.split(':');
@@ -144,7 +166,10 @@ function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, 
     )}>
       <div className="flex justify-between items-center mb-1.5">
         <div className="flex items-center gap-1 truncate">
-          <span className={cn("text-[9px] px-1.5 py-0.5 rounded font-medium shrink-0", levelStyle.tag)}>
+          <span 
+            className={cn("text-[9px] px-1.5 py-0.5 rounded font-medium shrink-0", levelStyle.tag)}
+            title={buffInfo || undefined}
+          >
             {levelStyle.label} #{land.id.toString().padStart(2, '0')}
           </span>
           <span className="font-semibold truncate text-foreground">{plantName}</span>
@@ -301,7 +326,7 @@ function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, 
       )}
     </div>
   );
-}
+});
 
 interface PlantData {
   id: number;
