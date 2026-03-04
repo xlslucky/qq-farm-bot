@@ -81,8 +81,14 @@ class FarmState extends EventEmitter {
     }
 
     setFriends(friends) {
-        this.friends = friends;
-        this.emit('friendsUpdate', friends);
+        const { toNum } = require('./utils');
+        this.friends = friends.map(f => ({
+            ...f,
+            gid: toNum(f.gid),
+            gold: toNum(f.gold),
+            level: toNum(f.level),
+        }));
+        this.emit('friendsUpdate', this.friends);
         this.syncState();
     }
 

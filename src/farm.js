@@ -583,15 +583,18 @@ async function checkFarm() {
         // 执行操作并收集结果
         const actions = [];
 
-        // 一键操作：除草、除虫、浇水可以并行执行（游戏中都是一键完成）
+        // 一键操作：除草、除虫、浇水只在分钟数能被5整除时执行
+        const now = new Date();
+        const isFiveMinuteMark = now.getMinutes() % 5 === 0;
+
         const batchOps = [];
-        if (CONFIG.autoWeed && status.needWeed.length > 0) {
+        if (CONFIG.autoWeed && status.needWeed.length > 0 && isFiveMinuteMark) {
             batchOps.push(weedOut(status.needWeed).then(() => actions.push(`除草${status.needWeed.length}`)).catch(e => logWarn('除草', e.message)));
         }
-        if (CONFIG.autoPest && status.needBug.length > 0) {
+        if (CONFIG.autoPest && status.needBug.length > 0 && isFiveMinuteMark) {
             batchOps.push(insecticide(status.needBug).then(() => actions.push(`除虫${status.needBug.length}`)).catch(e => logWarn('除虫', e.message)));
         }
-        if (CONFIG.autoWater && status.needWater.length > 0) {
+        if (CONFIG.autoWater && status.needWater.length > 0 && isFiveMinuteMark) {
             batchOps.push(waterLand(status.needWater).then(() => actions.push(`浇水${status.needWater.length}`)).catch(e => logWarn('浇水', e.message)));
         }
         if (batchOps.length > 0) {

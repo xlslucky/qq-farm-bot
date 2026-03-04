@@ -2,129 +2,87 @@
 
 ## Project Overview
 
-QQ Farm bot in Node.js (CommonJS). Automates farming: harvest, plant, weed, pest control, water, visit friends.
+QQ Farm bot in Node.js (CommonJS) with React web dashboard. Automates farming: harvest, plant, weed, pest control, water, visit friends.
 
 - **Entry**: `client.js`
-- **Source**: `src/`
-- **Modules**: config.js, utils.js, proto.js, network.js, farm.js, friend.js, task.js, status.js, warehouse.js, decode.js, state.js, logger.js, webApi.js
+- **Source**: `src/` (CommonJS modules)
+- **Web**: `web/` (React + TypeScript + TailwindCSS)
 
 ---
 
 ## Build, Run & Test Commands
 
-### Install & Build
+### Main Project (Node.js)
 ```bash
 npm install
-npm run build
-```
+npm run build                    # Bundle with esbuild
 
-### Run
-```bash
-# Run source (development)
+# Run
 node client.js --code <login_code>
-
-# Run bundled (after npm run build)
-# Note: proto/ and gameConfig/ must be in parent dir of bundle.js
-cd dist && node bundle.js --code <login_code>
-
-# QQ QR scan login
-node client.js --qr
-
-# WeChat login
-node client.js --code <login_code> --wx
-
-# Bark push notification
-node client.js --code <login_code> --bark <bark_key>
-
-# Custom intervals (seconds)
-node client.js --code <code> --interval 30 --friend-interval 5
+node client.js --qr              # QQ QR scan login
+node client.js --code <code> --wx    # WeChat login
+node client.js --code <code> --bark <bark_key>  # Bark push
 
 # Web dashboard
 npm run web
+
+# Debug
+node client.js --verify          # Verify proto definitions
+node client.js --decode <data> [--hex] [--type <msg_type>]
 ```
 
-### Debug Modes
+### Web Frontend (React + TypeScript)
 ```bash
-# Verify proto definitions
-node client.js --verify
-
-# Decode protobuf data
-node client.js --decode <data> [--hex] [--gate] [--type <msg_type>]
-```
-
-### Lint & TypeCheck
-**No linting configured.** Add ESLint if needed:
-```bash
-npx eslint src/ --fix
-# Single file
-npx eslint src/farm.js --fix
+cd web
+npm install
+npm run dev                      # Development server
+npm run build                    # TypeScript check + Vite build
+npm run lint                     # ESLint
+npx eslint src/App.tsx           # Lint single file
 ```
 
 ### Testing
-**No test framework configured.** To add and run tests:
+**No test framework configured.** To add:
 ```bash
-# Install Jest
 npm install --save-dev jest
-
-# Add to package.json: "test": "jest"
-
-# Run all tests
-npm test
-
-# Run single test file
-npx jest src/farm.test.js
-
-# Run tests matching pattern
-npx jest --testPathPattern=farm
+npm test                         # Run all tests
+npx jest src/farm.test.js        # Run single test file
 ```
 
 ---
 
 ## Code Style
 
-### Language
-- **JavaScript (CommonJS)** - use `require()` / `module.exports`
+### Main Project (JavaScript/CommonJS)
+- **Indent**: 4 spaces (no tabs)
+- **Semicolons**: Always
 - **Comments**: Chinese (Simplified)
-- **No TypeScript**
+- **Imports**: `const { x } = require('./module')`
 
-### Naming Conventions
+**Naming**:
 - Functions/Variables: `camelCase` (`getAllLands`, `isCheckingFarm`)
-- Constants: `UPPER_SNAKE_CASE` (`NORMAL_FERTILIZER_ID`, `CONFIG.farmCheckInterval`)
-- Enums/Config Objects: `PascalCase` (`PlantPhase`, `PHASE_NAMES`, `CONFIG`)
+- Constants: `UPPER_SNAKE_CASE` (`NORMAL_FERTILIZER_ID`)
+- Enums/Config: `PascalCase` (`PlantPhase`, `CONFIG`)
 - Files: `snake_case.js`
-- State variables: prefix with `is`, `has`, `should` (`isCheckingFarm`, `hasBackpack`)
+- State variables: prefix `is`, `has`, `should`
 
-### Imports
-```javascript
-const WebSocket = require('ws');
-const EventEmitter = require('events');
-const { CONFIG, PlantPhase } = require('./config');
-const { sendMsgAsync, networkEvents } = require('./src/network');
-const { getPlantingRecommendation } = require('../tools/calc-exp-yield');
-```
+### Web Frontend (TypeScript/React)
+- **Indent**: 2 spaces (no tabs)
+- **Imports**: `import { x } from '@/module'` (use `@/` path alias)
+- **Components**: Functional components with hooks
+- **Styling**: TailwindCSS with `cn()` utility for conditional classes
 
-### Formatting
-- 4 spaces indent (no tabs)
-- Space after commas, around operators
-- Always use semicolons
-- Opening brace on same line
-
-### Logging
-```javascript
-const { log, logWarn, sleep } = require('./src/utils');
-log('农场', `已收获 ${count} 块地`);
-logWarn('商店', `金币不足!`);
-
-// Bark 推送 (需设置 CONFIG.barkKey 或 --bark <key>)
-pushNotification('推送', '农场已启动');
-```
+**Naming**:
+- Components: `PascalCase` (`LandCard`, `Dashboard`)
+- Hooks: `use` prefix (`useFarmState`, `useBotStatus`)
+- Types: `PascalCase` (`RoleLevel`, `PlantData`)
 
 ---
 
 ## Error Handling & Async Patterns
 
-### Error Handling
 ```javascript
+// Main project - always use async/await with try/catch
 async function checkFarm() {
     try {
         const landsReply = await getAllLands();
@@ -134,23 +92,20 @@ async function checkFarm() {
         isCheckingFarm = false;
     }
 }
+
+// Network timeout: 10s
+// Batch operations: 50ms delay between items
+// Always check ws.readyState before sending
 ```
 
-### Async Patterns
-- Use `async/await` consistently
-- 10s timeout for network requests
-- 50ms delay between batch operations
-- Check `ws.readyState` before sending messages
-
-### Protobuf (64-bit integers)
-Always use `Long` for 64-bit ints:
+### Protobuf 64-bit Integers
+Always use `toLong()` / `toNum()` for 64-bit numbers:
 ```javascript
 const { toLong, toNum } = require('./src/utils');
-const body = types.HarvestRequest.encode(types.HarvestRequest.create({
+const body = types.HarvestRequest.encode({
     land_ids: landIds,
     host_gid: toLong(state.gid),
-})).finish();
-const reply = types.HarvestReply.decode(replyBody);
+}).finish();
 const gid = toNum(reply.gid);
 ```
 
@@ -158,75 +113,55 @@ const gid = toNum(reply.gid);
 
 ## Module Patterns
 
-### Callback Registration Pattern
+### Callback Registration
 ```javascript
-let onOperationLimitsUpdate = null;
-function setOperationLimitsCallback(callback) {
-    onOperationLimitsUpdate = callback;
-}
-module.exports = { setOperationLimitsCallback };
-```
-
-### Event Handling
-```javascript
-const EventEmitter = require('events');
-const networkEvents = new EventEmitter();
-// Emit
-networkEvents.emit('landsChanged', lands);
-// Listen
-networkEvents.on('landsChanged', onLandsChangedPush);
+let onUpdate = null;
+function setCallback(callback) { onUpdate = callback; }
+module.exports = { setCallback };
 ```
 
 ### State Management (state.js)
 ```javascript
 const farmState = {
     lands: [],
-    backpack: [],
-    operationLimits: null,
     setLands(lands) { this.lands = lands; },
-    // ...
 };
 module.exports = { farmState };
 ```
 
----
-
-## Common Patterns
-
-### Farm Loop
+### Event Emitter
 ```javascript
-async function farmCheckLoop() {
-    while (farmLoopRunning) {
-        await checkFarm();
-        if (!farmLoopRunning) break;
-        await sleep(CONFIG.farmCheckInterval);
-    }
-}
-```
-
-### Batch Operations
-```javascript
-for (const landId of landIds) {
-    try {
-        await plantSeeds(seedId, [landId]);
-        successCount++;
-    } catch (e) { break; }
-    if (landIds.length > 1) await sleep(50);
-}
+const networkEvents = new EventEmitter();
+networkEvents.emit('landsChanged', lands);
+networkEvents.on('landsChanged', handler);
 ```
 
 ---
 
 ## Common Issues
 
-1. **64-bit overflow**: Always use `toLong()` / `toNum()` for large numbers
-2. **WebSocket timeouts**: Check `ws.readyState === WebSocket.OPEN` before sending
-3. **QQ push**: `LandsNotify` may not work in QQ, only `ItemNotify`
-4. **Rate limiting**: Always add 50ms delay between batch operations
-5. **Memory leaks**: Clean up timers and event listeners in cleanup phase
+1. **64-bit overflow**: Always use `toLong()` / `toNum()`
+2. **WebSocket**: Check `ws.readyState === WebSocket.OPEN` before sending
+3. **Rate limiting**: Add 50ms delay between batch operations
+4. **Web build**: Run `cd web && npm run build` after UI changes
+
+---
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `client.js` | Entry point, CLI args, main loop |
+| `src/config.js` | Constants, CONFIG object, enums |
+| `src/farm.js` | Farm operations (harvest, plant, etc.) |
+| `src/friend.js` | Friend farm operations |
+| `src/network.js` | WebSocket, protobuf messaging |
+| `src/state.js` | Shared state for web API |
+| `web/src/App.tsx` | Main React component (dashboard UI) |
 
 ---
 
 ## Dependencies
 
-`axios`, `long`, `protobufjs`, `qrcode-terminal`, `ws`, `express`, `socket.io`
+**Main**: `axios`, `long`, `protobufjs`, `ws`, `express`, `socket.io`
+**Web**: `react`, `tailwindcss`, `vite`, `dayjs`, `lucide-react`
