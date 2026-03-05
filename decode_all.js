@@ -28,7 +28,7 @@ for (const file of files) {
         
         const outFile = file.replace('.bin', '.txt');
         const outPath = path.join(resDir, outFile);
-        fs.writeFileSync(outPath, output);
+        fs.writeFileSync(outPath, hexStr.replaceAll(' ', '') + '\n' + output);
         
         console.log(`  -> ${outFile}`);
     } catch (e) {
