@@ -53,10 +53,18 @@ async function getAllFriends(force = false) {
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         return null;
     }
+
+    let reply = null
     
-    const body = types.GetAllFriendsRequest.encode(types.GetAllFriendsRequest.create({})).finish();
-    const { body: replyBody } = await sendMsgAsync('gamepb.friendpb.FriendService', 'GetAll', body);
-    const reply = types.GetAllFriendsReply.decode(replyBody);
+    if (CONFIG.platform === 'wx') {
+        const body = types.GetAllFriendsRequest.encode(types.GetAllFriendsRequest.create({})).finish();
+        const { body: replyBody } = await sendMsgAsync('gamepb.friendpb.FriendService', 'GetAll', body);
+        reply = types.GetAllFriendsReply.decode(replyBody);
+    } else {
+        const body = types.SyncAllRequest.encode(types.SyncAllRequest.create({ open_ids: [] })).finish();
+        const { body: replyBody } = await sendMsgAsync('gamepb.friendpb.FriendService', 'SyncAll', body);
+        reply = types.SyncAllReply.decode(replyBody);
+    }
     // 更新 Web API 状态
     if (reply.game_friends) {
         farmState.setFriends(reply.game_friends);
