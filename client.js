@@ -249,6 +249,36 @@ async function main() {
                         }
                     }
                 }
+            } else if (action.type === 'use-item') {
+                const { itemId, count } = action;
+                const { getUserState } = require('./src/network');
+                const state = getUserState();
+                if (!state.gid) {
+                    console.log('[Sync] Not logged in, skipping use-item');
+                    return;
+                }
+                const { useItem } = require('./src/warehouse');
+                try {
+                    const result = await useItem(itemId, count);
+                    console.log('[Sync] Used item:', itemId, 'count:', count, 'result:', JSON.stringify(result));
+                } catch (e) {
+                    console.log('[Sync] Use item error:', e.message);
+                }
+            } else if (action.type === 'batch-use-item') {
+                const { items } = action;
+                const { getUserState } = require('./src/network');
+                const state = getUserState();
+                if (!state.gid) {
+                    console.log('[Sync] Not logged in, skipping batch-use-item');
+                    return;
+                }
+                const { batchUseItem } = require('./src/warehouse');
+                try {
+                    const result = await batchUseItem(items);
+                    console.log('[Sync] Batch used items:', JSON.stringify(items), 'result:', JSON.stringify(result));
+                } catch (e) {
+                    console.log('[Sync] Batch use item error:', e.message);
+                }
             }
         });
     } else {

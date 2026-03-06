@@ -1006,9 +1006,51 @@ function BackpackPanel() {
                           </div>
                         )}
                         {type === 0 && (
-                          <pre className="text-[9px] text-muted-foreground bg-muted/50 p-1 rounded whitespace-pre-wrap break-all">
+                          <>
+                            <div className="flex gap-1 mt-1">
+                              <button
+                                onClick={() => {
+                                  const maxCount = item.count;
+                                  const input = maxCount > 1 
+                                    ? prompt(`请输入使用数量（默认最大 ${maxCount}）:`, String(maxCount))
+                                    : String(maxCount);
+                                  if (input === null) return;
+                                  const count = parseInt(input) || maxCount;
+                                  if (count <= 0 || count > maxCount) {
+                                    alert('数量无效');
+                                    return;
+                                  }
+                                  if (confirm(`确认使用 ${item.name} x${count}？`)) {
+                                    triggerAction('batch-use-item', { items: [{ item_id: item.id, count }] });
+                                  }
+                                }}
+                                className="text-[9px] px-2 py-0.5 bg-blue-100 text-blue-600 rounded dark:bg-blue-900/50 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                              >
+                                使用
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const maxCount = item.count;
+                                  const input = prompt(`请输入批量使用数量:`, String(maxCount));
+                                  if (input === null) return;
+                                  const count = parseInt(input) || maxCount;
+                                  if (count <= 0 || count > maxCount) {
+                                    alert('数量无效');
+                                    return;
+                                  }
+                                  if (confirm(`确认批量使用 ${item.name} x${count}？`)) {
+                                    triggerAction('batch-use-item', { items: [{ item_id: item.id, count }] });
+                                  }
+                                }}
+                                className="text-[9px] px-2 py-0.5 bg-purple-100 text-purple-600 rounded dark:bg-purple-900/50 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-800/50"
+                              >
+                                批量
+                              </button>
+                            </div>
+                            <pre className="text-[9px] text-muted-foreground bg-muted/50 p-1 rounded whitespace-pre-wrap break-all">
 {JSON.stringify(item, null, 1)}
-                          </pre>
+                            </pre>
+                          </>
                         )}
                       </CardContent>
                     </Card>

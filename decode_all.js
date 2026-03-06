@@ -7,6 +7,12 @@ const resDir = path.join(__dirname, 'socket_message', 'res');
 
 if (!fs.existsSync(resDir)) {
     fs.mkdirSync(resDir, { recursive: true });
+} else {
+    const existingFiles = fs.readdirSync(resDir);
+    for (const f of existingFiles) {
+        fs.unlinkSync(path.join(resDir, f));
+    }
+    console.log(`Cleared ${existingFiles.length} files from ${resDir}\n`);
 }
 
 const files = fs.readdirSync(hexDir).filter(f => f.endsWith('.bin')).sort();

@@ -68,6 +68,26 @@ async function sellItems(items) {
     return types.SellReply.decode(replyBody);
 }
 
+async function useItem(itemId, count, landIds = undefined) {
+    const body = types.UseRequest.encode(types.UseRequest.create({
+        item_id: String(itemId),
+        count: toLong(count),
+        land_ids: landIds,
+    })).finish();
+    const { body: replyBody } = await sendMsgAsync('gamepb.itempb.ItemService', 'Use', body);
+    return types.UseReply.decode(replyBody);
+}
+
+async function batchUseItem(items) {
+    const payload = items.map(item => ({
+        item_id: String(item.item_id),
+        count: toLong(item.count),
+    }));
+    const body = types.BatchUseRequest.encode(types.BatchUseRequest.create({ items: payload })).finish();
+    const { body: replyBody } = await sendMsgAsync('gamepb.itempb.ItemService', 'BatchUse', body);
+    return types.BatchUseReply.decode(replyBody);
+}
+
 /**
  * 从 BagReply 取出物品列表（兼容 item_bag 与旧版 items）
  */
@@ -172,4 +192,6 @@ module.exports = {
     getBagItems,
     startSellLoop,
     stopSellLoop,
+    useItem,
+    batchUseItem,
 };

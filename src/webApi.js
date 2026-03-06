@@ -215,6 +215,16 @@ app.post('/api/action/fertilize', (req, res) => {
     res.json({ success: true, message: 'Fertilize action triggered' });
 });
 
+app.post('/api/action/use-item', (req, res) => {
+    io.emit('action', { type: 'use-item', itemId: req.body.itemId, count: req.body.count });
+    res.json({ success: true, message: 'Use item action triggered' });
+});
+
+app.post('/api/action/batch-use-item', (req, res) => {
+    io.emit('action', { type: 'batch-use-item', items: req.body.items });
+    res.json({ success: true, message: 'Batch use item action triggered' });
+});
+
 app.post('/api/action/check-farm', (req, res) => {
     io.emit('action', { type: 'checkFriends' });
     res.json({ success: true, message: 'Check friends action triggered' });
