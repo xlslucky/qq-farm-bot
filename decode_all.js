@@ -22,11 +22,17 @@ for (const file of files) {
     console.log(`\n>>> ${file}`);
     
     try {
-        const isServer = file.includes('_server');
+        // const isServer = file.includes('_server');
         const cmd = `node client.js --decode "${hexStr}" --hex --gate`;
         const output = execSync(cmd, { encoding: 'utf8', timeout: 10000 });
+
+        // 后缀
+        let suffix = '.txt'
         
-        const outFile = file.replace('.bin', '.txt');
+        if (output.includes('未能自动推断类型')) {
+            suffix = '-unknown.txt'
+        }
+        const outFile = file.replace('.bin', suffix);
         const outPath = path.join(resDir, outFile);
         fs.writeFileSync(outPath, hexStr.replaceAll(' ', '') + '\n' + output);
         

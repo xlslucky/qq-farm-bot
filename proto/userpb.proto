@@ -121,3 +121,13 @@ message ReportArkClickReply {
 message BasicNotify {
     BasicInfo basic = 1;
 }
+
+message SetDisplayInfoRequest {
+    string name = 1;
+    string avatar_url = 2;
+}
+
+message SetDisplayInfoReply {
+    string name = 1;
+    string avatar_url = 2;
+}
