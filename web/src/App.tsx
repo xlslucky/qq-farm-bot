@@ -154,6 +154,10 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
 
   const buffInfo = getBuffInfo();
 
+  const fruitId = land.plant?.fruit_id;
+  const cropNum = fruitId ? parseInt(fruitId) - 40000 : null;
+  const fruitImgUrl = cropNum ? `/seed_images/${cropNum}.png` : null;
+
   const growPhasesList: { name: string; hours: number }[] = (plantConfig?.grow_phases?.split(';').filter((t: string) => t).map((txt: string) => {
     const parts = txt.split(':');
     return { name: parts[0], hours: parseInt(parts[1]) || 0 };
@@ -172,7 +176,10 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
           >
             {levelStyle.label} #{land.id.toString().padStart(2, '0')}
           </span>
-          <span className="font-semibold truncate text-foreground">{plantName}</span>
+          <span className="font-semibold truncate text-foreground flex items-center gap-1">
+            {fruitImgUrl && <img src={fruitImgUrl} alt="" className="w-4 h-4 object-contain shrink-0" />}
+            {plantName}
+          </span>
         </div>
         {land.plant?.mutant_config_ids?.length ? (
           <span 
@@ -959,10 +966,23 @@ function BackpackPanel() {
                   <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">{sortedItems.length}</span>
                 </h3>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5">
-                  {sortedItems.map((item: any) => (
+                  {sortedItems.map((item: any) => {
+                    const getSeedImage = () => {
+                      const id = item.id;
+                      if (type === 5 && id >= 20000) return (id - 20000) || null;
+                      if (type === 6 && id >= 40000) return (id - 40000) || null;
+                      return null;
+                    };
+                    const cropNum = getSeedImage();
+                    const imgUrl = cropNum ? `/seed_images/${cropNum}.png` : null;
+                    
+                    return (
                     <Card key={item.uid || item.id} className="overflow-hidden bg-card/80 hover:bg-card transition-colors">
                       <CardContent className="p-2 space-y-1">
-                        <div className="flex items-center justify-between gap-1">
+                        <div className="flex items-center gap-1">
+                          {imgUrl && (
+                            <img src={imgUrl} alt="" className="w-6 h-6 object-contain shrink-0" />
+                          )}
                           <p className="font-medium text-xs truncate" title={item.name}>{item.name}</p>
                           <span className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded shrink-0">
                             x{item.count}
@@ -992,7 +1012,8 @@ function BackpackPanel() {
                         )}
                       </CardContent>
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
