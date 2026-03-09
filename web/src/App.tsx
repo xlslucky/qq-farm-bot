@@ -24,7 +24,7 @@ import {
   Backpack,
   Search,
 } from 'lucide-react';
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -133,7 +133,7 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
 
   const levelStyle = landLevelStyles[landLevel] || landLevelStyles[1];
 
-  const getBuffInfo = useCallback(() => {
+  const buffInfo = useMemo(() => {
     const buff = land.buff;
     if (!buff) return '';
     const parts: string[] = [];
@@ -152,8 +152,6 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
     return parts.length > 0 ? parts.join(' | ') : '';
   }, [land.buff]);
 
-  const buffInfo = getBuffInfo();
-
   const fruitId = land.plant?.fruit_id;
   const cropNum = fruitId ? parseInt(fruitId) - 40000 : null;
   const fruitImgUrl = cropNum ? `/seed_images/${cropNum}.png` : null;
@@ -162,6 +160,8 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
     const parts = txt.split(':');
     return { name: parts[0], hours: parseInt(parts[1]) || 0 };
   }) || [])
+
+  const sum = growPhasesList.reduce((acc, cur) => acc + cur.hours, 0);
 
   return (
     <div className={cn(
@@ -214,9 +214,9 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
                 }
                 
                 return (
-                  <div key={index} className="flex-1 flex">
+                  <div key={index} style={{ width: `${100 * (phaseSec / sum)}%` }} className="flex">
                     <div 
-                      className={cn('h-full rounded-full', isPast ? 'bg-gradient-to-r from-emerald-400 to-green-500' : isCurrent ? 'bg-gradient-to-r from-blue-400 to-cyan-500' : 'bg-gray-200 dark:bg-gray-600')}
+                      className={cn('h-full rounded-full', isPast ? 'bg-linear-to-r from-emerald-400 to-green-500' : isCurrent ? 'bg-linear-to-r from-blue-400 to-cyan-500' : 'bg-gray-200 dark:bg-gray-600')}
                       style={{ width: `${progress}%` }}
                     />
                     <div className={cn('flex-1', !isPast && !isCurrent ? 'bg-gray-200 dark:bg-gray-600' : '')} />
@@ -247,8 +247,8 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
                 }
                 
                 return (
-                  <span key={index} className="flex-1 text-center">
-                    <span className={cn(isCurrent ? 'text-blue-600 dark:text-blue-400 font-semibold' : isPast ? 'text-green-600 dark:text-green-400' : 'text-foreground/60')}>
+                  <span key={index} style={{ width: `${100 * (phaseSec / sum)}%` }} className="text-center">
+                    <span className={cn('text-nowrap', isCurrent ? 'text-blue-600 dark:text-blue-400 font-semibold' : isPast ? 'text-green-600 dark:text-green-400' : 'text-foreground/60')}>
                       {phaseConfig.name}
                     </span>
                     {isCurrent && <div className="text-[8px] text-blue-500 dark:text-blue-300 font-mono">{timeStr}</div>}
