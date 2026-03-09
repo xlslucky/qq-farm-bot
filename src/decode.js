@@ -7,6 +7,7 @@ const Long = require('long');
 const { PHASE_NAMES } = require('./config');
 const { types, getRoot } = require('./proto');
 const { toNum } = require('./utils');
+const cryptoWasm = require('./utils/crypto-wasm');
 
 // ============ 辅助函数 ============
 
@@ -107,6 +108,103 @@ async function verifyMode() {
 
 // ============ 解码模式 ============
 
+async function decodeGateMessage(buf, root) {
+    const msg = types.GateMessage.decode(buf);
+    const meta = msg.meta;
+    
+    // 第一行放 hex
+    let output = buf.toString('hex') + '\n';
+    
+    output += '=== gatepb.Message (外层) ===\n';
+    output += `  service:     ${meta.service_name}\n`;
+    output += `  method:      ${meta.method_name}\n`;
+    output += `  type:        ${meta.message_type} (${meta.message_type === 1 ? 'Request' : meta.message_type === 2 ? 'Response' : 'Notify'})\n`;
+    output += `  client_seq:  ${toNum(meta.client_seq)}\n`;
+    output += `  server_seq:  ${toNum(meta.server_seq)}\n`;
+    if (toNum(meta.error_code) !== 0) {
+        output += `  error_code:  ${toNum(meta.error_code)}\n`;
+        output += `  error_msg:   ${meta.error_message}\n`;
+    }
+    output += '\n';
+
+    if (msg.body && msg.body.length > 0) {
+        const rawBody = Buffer.from(msg.body);
+        const svc = meta.service_name || '';
+        const mtd = meta.method_name || '';
+        const isReq = meta.message_type === 1;
+        const suffix = isReq ? 'Request' : 'Reply';
+        const autoType = `${svc.replace('Service', '')}.${mtd}${suffix}`;
+
+        let bodyType = null;
+        try { bodyType = root.lookupType(autoType); } catch (e) {}
+        if (!bodyType) {
+            const parts = svc.split('.');
+            if (parts.length >= 2) {
+                const ns = parts.slice(0, parts.length - 1).join('.');
+                try { bodyType = root.lookupType(`${ns}.${mtd}${suffix}`); } catch (e) {}
+            }
+        }
+
+        let decryptedBody = null;
+        let bodyDecrypted = false;
+        
+        // 先尝试直接解码 (未加密的 body)
+        if (bodyType) {
+            try {
+                const decoded = bodyType.decode(rawBody);
+                output += `body hex (未加密): ${rawBody.toString('hex')}\n`;
+                output += `=== ${bodyType.fullName} (body 未加密) ===\n`;
+                output += JSON.stringify(decoded.toJSON(), longReplacer, 2) + '\n';
+            } catch (e) {
+                // 直接解码失败，尝试解密
+                try {
+                    decryptedBody = await cryptoWasm.decryptBuffer(rawBody);
+                    bodyDecrypted = true;
+                    const decoded = bodyType.decode(decryptedBody);
+                    output += `body hex (加密): ${rawBody.toString('hex')}\n`;
+                    output += `body hex (解密): ${decryptedBody.toString('hex')}\n`;
+                    output += `=== ${bodyType.fullName} (body 已解密) ===\n`;
+                    output += JSON.stringify(decoded.toJSON(), longReplacer, 2) + '\n';
+                } catch (e2) {
+                    output += `body hex (加密): ${rawBody.toString('hex')}\n`;
+                    output += `  解码失败 (未加密: ${e.message}, 解密后: ${e2.message})\n`;
+                }
+            }
+        } else {
+            // 无法推断类型，先尝试直接解码 (未加密)
+            const genericResult = tryGenericDecodeStr(rawBody);
+            const hasValidDecode = !genericResult.includes('解码中断');
+            
+            if (hasValidDecode) {
+                // 直接解码成功，未加密
+                output += `body hex (未加密): ${rawBody.toString('hex')}\n`;
+                output += `=== body (未能自动推断类型: ${autoType}) ===\n`;
+                output += genericResult;
+            } else {
+                // 直接解码失败，尝试解密
+                try {
+                    decryptedBody = await cryptoWasm.decryptBuffer(rawBody);
+                    bodyDecrypted = true;
+                } catch (e) {
+                    decryptedBody = rawBody;
+                }
+                if (bodyDecrypted) {
+                    output += `body hex (加密): ${rawBody.toString('hex')}\n`;
+                    output += `body hex (解密): ${decryptedBody.toString('hex')}\n`;
+                    output += `=== body (未能自动推断类型: ${autoType}) ===\n`;
+                    output += tryGenericDecodeStr(decryptedBody);
+                } else {
+                    output += `body hex: ${rawBody.toString('hex')}\n`;
+                    output += `=== body (未能自动推断类型: ${autoType}) ===\n`;
+                    output += genericResult;
+                }
+            }
+        }
+    }
+    
+    return output;
+}
+
 async function decodeMode(args) {
     let inputData = '';
     let typeName = '';
@@ -136,7 +234,7 @@ PB数据解码工具
 参数:
   <数据>       base64编码的pb数据 (默认), 或hex编码 (配合 --hex)
   --hex       输入数据为hex编码
-  --gate      外层是 gatepb.Message 包装, 自动解析 meta + body
+  --gate      外层是 gatepb.Message 包装, 自动解析 meta + body (自动解密)
   --type      指定消息类型, 如: gatepb.Message, gamepb.plantpb.AllLandsReply 等
 
 可用类型:
@@ -155,6 +253,7 @@ PB数据解码工具
         return;
     }
 
+    await cryptoWasm.initWasm();
     const root = getRoot();
     let buf;
     try {
@@ -165,51 +264,11 @@ PB数据解码工具
     }
     console.log(`数据长度: ${buf.length} 字节\n`);
 
-    // --gate: 先解析外层 gatepb.Message
+    // --gate: 先解析外层 gatepb.Message (自动解密 body)
     if (isGateWrapped) {
         try {
-            const msg = types.GateMessage.decode(buf);
-            const meta = msg.meta;
-            console.log('=== gatepb.Message (外层) ===');
-            console.log(`  service:     ${meta.service_name}`);
-            console.log(`  method:      ${meta.method_name}`);
-            console.log(`  type:        ${meta.message_type} (${meta.message_type === 1 ? 'Request' : meta.message_type === 2 ? 'Response' : 'Notify'})`);
-            console.log(`  client_seq:  ${meta.client_seq}`);
-            console.log(`  server_seq:  ${meta.server_seq}`);
-            if (toNum(meta.error_code) !== 0) {
-                console.log(`  error_code:  ${meta.error_code}`);
-                console.log(`  error_msg:   ${meta.error_message}`);
-            }
-            console.log('');
-
-            if (msg.body && msg.body.length > 0) {
-                const svc = meta.service_name || '';
-                const mtd = meta.method_name || '';
-                const isReq = meta.message_type === 1;
-                const suffix = isReq ? 'Request' : 'Reply';
-                const autoType = `${svc.replace('Service', '')}.${mtd}${suffix}`;
-
-                let bodyType = null;
-                try { bodyType = root.lookupType(autoType); } catch (e) {}
-                if (!bodyType) {
-                    const parts = svc.split('.');
-                    if (parts.length >= 2) {
-                        const ns = parts.slice(0, parts.length - 1).join('.');
-                        try { bodyType = root.lookupType(`${ns}.${mtd}${suffix}`); } catch (e) {}
-                    }
-                }
-
-                if (bodyType) {
-                    console.log(`=== ${bodyType.fullName} (body 自动推断) ===`);
-                    const decoded = bodyType.decode(msg.body);
-                    console.log(JSON.stringify(decoded.toJSON(), longReplacer, 2));
-                } else {
-                    console.log(`=== body (未能自动推断类型, 用 --type 手动指定 body 类型) ===`);
-                    console.log(`  hex: ${Buffer.from(msg.body).toString('hex')}`);
-                    console.log(`  base64: ${Buffer.from(msg.body).toString('base64')}`);
-                    tryGenericDecode(msg.body);
-                }
-            }
+            const output = await decodeGateMessage(buf, root);
+            console.log(output);
         } catch (e) {
             console.error(`gatepb.Message 解码失败: ${e.message}`);
         }
@@ -243,4 +302,37 @@ PB数据解码工具
     tryGenericDecode(buf);
 }
 
-module.exports = { verifyMode, decodeMode };
+// ============ 通用解码 (返回字符串) ============
+function tryGenericDecodeStr(buf) {
+    let output = '';
+    try {
+        const reader = protobuf.Reader.create(buf);
+        while (reader.pos < reader.len) {
+            const tag = reader.uint32();
+            const fieldNum = tag >>> 3;
+            const wireType = tag & 7;
+            let value;
+            switch (wireType) {
+                case 0: value = reader.int64().toString(); output += `  field ${fieldNum} (varint): ${value}\n`; break;
+                case 1: value = reader.fixed64().toString(); output += `  field ${fieldNum} (fixed64): ${value}\n`; break;
+                case 2: {
+                    const bytes = reader.bytes();
+                    const str = tryDecodeString(bytes);
+                    if (str !== null) {
+                        output += `  field ${fieldNum} (bytes/${bytes.length}): "${str}"\n`;
+                    } else {
+                        output += `  field ${fieldNum} (bytes/${bytes.length}): ${Buffer.from(bytes).toString('hex')}\n`;
+                    }
+                    break;
+                }
+                case 5: value = reader.float(); output += `  field ${fieldNum} (float): ${value}\n`; break;
+                default: output += `  field ${fieldNum} (wire ${wireType}): <skip>\n`; reader.skipType(wireType); break;
+            }
+        }
+    } catch (e) {
+        output += `  解码中断: ${e.message}\n`;
+    }
+    return output;
+}
+
+module.exports = { verifyMode, decodeMode, decodeGateMessage };
