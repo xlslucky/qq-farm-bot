@@ -2,7 +2,7 @@
  * 配置常量与枚举定义
  */
 
-const clientVersion = '1.6.2.17_20251224'
+const clientVersion = '1.6.2.18_20260227'
 
 const CONFIG = {
     serverUrl: 'wss://gate-obt.nqf.qq.com/prod/ws',

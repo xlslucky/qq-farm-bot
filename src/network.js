@@ -9,6 +9,7 @@ const { types } = require('./proto');
 const { toLong, toNum, syncServerTime, log, logWarn, pushNotification } = require('./utils');
 const { updateStatusFromLogin, updateStatusGold, updateStatusLevel } = require('./status');
 const { farmState } = require('./state');
+const cryptoWasm = require('./utils/crypto-wasm')
 
 // ============ 事件发射器 (用于推送通知) ============
 const networkEvents = new EventEmitter();
@@ -32,7 +33,11 @@ const userState = {
 function getUserState() { return userState; }
 
 // ============ 消息编解码 ============
-function encodeMsg(serviceName, methodName, bodyBytes) {
+async function encodeMsg(serviceName, methodName, bodyBytes) {
+    let finalBody = bodyBytes || Buffer.alloc(0);
+    if (finalBody.length > 0) {
+        finalBody = await cryptoWasm.encryptBuffer(finalBody);
+    }
     const msg = types.GateMessage.create({
         meta: {
             service_name: serviceName,
@@ -41,21 +46,35 @@ function encodeMsg(serviceName, methodName, bodyBytes) {
             client_seq: toLong(clientSeq),
             server_seq: toLong(serverSeq),
         },
-        body: bodyBytes || Buffer.alloc(0),
+        body: finalBody,
     });
     const encoded = types.GateMessage.encode(msg).finish();
     clientSeq++;
     return encoded;
 }
 
-function sendMsg(serviceName, methodName, bodyBytes, callback) {
+async function sendMsg(serviceName, methodName, bodyBytes, callback) {
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         log('WS', '连接未打开');
+        if (callback) callback(new Error('连接未打开'));
         return false;
     }
     const seq = clientSeq;
-    const encoded = encodeMsg(serviceName, methodName, bodyBytes);
+    let encoded;
+    try {
+        encoded = await encodeMsg(serviceName, methodName, bodyBytes);
+    } catch (err) {
+        if (callback) callback(err);
+        return false;
+    }
     if (callback) pendingCallbacks.set(seq, callback);
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        if (callback) {
+            pendingCallbacks.delete(seq);
+            callback(new Error('连接已在加密途中关闭'));
+        }
+        return false;
+    }
     ws.send(encoded);
     return true;
 }
@@ -77,16 +96,19 @@ function sendMsgAsync(serviceName, methodName, bodyBytes, timeout = 10000) {
             reject(new Error(`请求超时: ${methodName} (seq=${seq}, pending=${pending})`));
         }, timeout);
 
-        const sent = sendMsg(serviceName, methodName, bodyBytes, (err, body, meta) => {
+        sendMsg(serviceName, methodName, bodyBytes, (err, body, meta) => {
             clearTimeout(timer);
             if (err) reject(err);
             else resolve({ body, meta });
-        });
-        
-        if (!sent) {
+        }).then(sent => {
+            if (!sent) {
+                clearTimeout(timer);
+                reject(new Error(`发送失败: ${methodName}`));
+            }
+        }).catch(err => {
             clearTimeout(timer);
-            reject(new Error(`发送失败: ${methodName}`));
-        }
+            reject(err);
+        });
     });
 }
 
@@ -94,7 +116,14 @@ function sendMsgAsync(serviceName, methodName, bodyBytes, timeout = 10000) {
 function handleMessage(data) {
     try {
         const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
-        const msg = types.GateMessage.decode(buf);
+        let msg;
+        try {
+            msg = types.GateMessage.decode(buf);
+        } catch (err) {
+            logWarn('解码', `外层 GateMessage 解码失败: ${err.message}`);
+            return;
+        }
+
         const meta = msg.meta;
         if (!meta) return;
 
@@ -107,7 +136,11 @@ function handleMessage(data) {
 
         // Notify
         if (msgType === 3) {
-            handleNotify(msg);
+            try {
+                handleNotify(msg);
+            } catch (e) {
+                logWarn('推送', `Notify 解码失败: ${e.message}`);
+            }
             return;
         }
 

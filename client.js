@@ -26,6 +26,7 @@ const { getQQFarmCodeByScan } = require('./src/qqQrLogin');
 const { initFileLogger } = require('./src/logger');
 const { startApiServer } = require('./src/webApi');
 const { farmState, setStopSellLoop } = require('./src/state');
+const cryptoWasm = require('./src/utils/crypto-wasm')
 
 initFileLogger();
 
@@ -158,6 +159,7 @@ async function main() {
 
     // 加载 proto 定义
     await loadProto();
+    await cryptoWasm.initWasm();
 
     // 启动 Web API 服务器
     if (options.enableApi) {
