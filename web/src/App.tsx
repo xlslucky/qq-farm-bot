@@ -344,6 +344,7 @@ interface PlantData {
   exp: number;
   fruit: { id: number; count: number };
   grow_phases?: string;
+  mutant?: string;
 }
 
 function Dashboard() {
@@ -909,9 +910,10 @@ function getMutantEffect(mutant: any): string | null {
   return map[low] || null;
 }
 
-function BackpackPanel() {
+function BackpackPanel({ mutantFruitMap }: { mutantFruitMap: Record<number, string> }) {
   const { state, loading } = useFarmState();
   const [refreshing, setRefreshing] = useState(false);
+  const [showJson, setShowJson] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -943,6 +945,10 @@ function BackpackPanel() {
           <RefreshCw className={`h-4 w-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
           刷新
         </Button>
+        <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+          <input type="checkbox" checked={showJson} onChange={(e) => setShowJson(e.target.checked)} className="accent-blue-500" />
+          显示JSON
+        </label>
       </div>
 
       {items.length === 0 ? (
@@ -954,14 +960,12 @@ function BackpackPanel() {
       ) : (
         <div className="space-y-3">
           {[
-            { name: '果食', type: 6 },
-            { name: '种子', type: 5 },
-            { name: '道具', type: 0 },
-          ].map(({ name, type }) => {
-            const catItems = type === 0 
-              ? items.filter((i: any) => i.type !== 6 && i.type !== 5 && ![1001, 1002, 1011, 1012, 1101].includes(i.id))
-              : items.filter((i: any) => i.type === type);
-            const sortedItems = [...catItems].sort((a, b) => a.id - b.id || a.uid - b.uid);
+            { name: '果食', list: items.filter((i: any) => i.type === 6) },
+            { name: '种子', list: items.filter((i: any) => i.type === 5) },
+            { name: '超变果食', list: items.filter((i: any) => i.type === 0) },
+            { name: '道具', list: items.filter((i: any) => i.type !== 6 && i.type !== 5 && i.type !== 0) },
+          ].map(({ name, list }) => {
+            const sortedItems = [...list].sort((a, b) => a.id - b.id || a.uid - b.uid);
             if (sortedItems.length === 0) return null;
             return (
               <div key={name}>
@@ -974,12 +978,14 @@ function BackpackPanel() {
                   {sortedItems.map((item: any) => {
                     const getSeedImage = () => {
                       const id = item.id;
+                      const type = item.type;
                       if (type === 5 && id >= 20000) return (id - 20000) || null;
-                      if (type === 6 && id >= 40000) return (id - 40000) || null;
+                      if ((type === 6 || type === 0) && id >= 40000) return (id - 40000) || null;
                       return null;
                     };
                     const cropNum = getSeedImage();
                     const imgUrl = cropNum ? `/seed_images/${cropNum}.png` : null;
+                    const displayName = item.type === 0 && mutantFruitMap[item.id] ? mutantFruitMap[item.id] : item.name;
                     
                     return (
                     <Card key={item.uid || item.id} className="overflow-hidden bg-card/80 hover:bg-card transition-colors">
@@ -988,7 +994,7 @@ function BackpackPanel() {
                           {imgUrl && (
                             <img src={imgUrl} alt="" className="w-6 h-6 object-contain shrink-0" />
                           )}
-                          <p className="font-medium text-xs truncate" title={item.name}>{item.name}</p>
+                          <p className="font-medium text-xs truncate" title={item.name}>{displayName}</p>
                           <span className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded shrink-0">
                             x{item.count}
                           </span>
@@ -1010,7 +1016,7 @@ function BackpackPanel() {
                             })}
                           </div>
                         )}
-                        {type === 0 && (
+                        {item.type !== 6 && item.type !== 5 && item.type !== 0 && (
                           <>
                             <div className="flex gap-1 mt-1">
                               <button
@@ -1052,10 +1058,12 @@ function BackpackPanel() {
                                 批量
                               </button>
                             </div>
-                            <pre className="text-[9px] text-muted-foreground bg-muted/50 p-1 rounded whitespace-pre-wrap break-all">
-{JSON.stringify(item, null, 1)}
-                            </pre>
                           </>
+                        )}
+                        {showJson && (
+                          <pre className="text-[9px] text-muted-foreground bg-muted/50 p-1 rounded whitespace-pre-wrap break-all">
+{JSON.stringify(item, null, 1)}
+                          </pre>
                         )}
                       </CardContent>
                     </Card>
@@ -1473,6 +1481,28 @@ function StartPage() {
 
 export default function App() {
   const { running, loading: botLoading } = useBotStatus();
+  const [mutantFruitMap, setMutantFruitMap] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    fetch('/gameConfig/Plant.json')
+      .then(r => r.json())
+      .then((plantData: PlantData[]) => {
+        const mutantMap: Record<number, string> = {};
+        plantData.forEach((p: PlantData) => {
+          if (p.mutant) {
+            const parts = p.mutant.split(':');
+            if (parts.length >= 2) {
+              const mutantFruitId = parseInt(parts[1], 10);
+              if (!isNaN(mutantFruitId)) {
+                mutantMap[mutantFruitId] = p.name;
+              }
+            }
+          }
+        });
+        setMutantFruitMap(mutantMap);
+      })
+      .catch(() => {});
+  }, []);
 
   if (botLoading) {
     return (
@@ -1549,7 +1579,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="backpack">
-            <BackpackPanel />
+            <BackpackPanel mutantFruitMap={mutantFruitMap} />
           </TabsContent>
 
           <TabsContent value="friends">
