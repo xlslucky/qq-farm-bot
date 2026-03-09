@@ -40,9 +40,9 @@ function toNum(v, fallback = 0) {
 function parseArgs(argv) {
     const opts = {
         input: DEFAULT_INPUT,
-        outJson: DEFAULT_OUT_JSON,
-        outCsv: DEFAULT_OUT_CSV,
-        outTxt: DEFAULT_OUT_TXT,
+        outJson: null,
+        outCsv: null,
+        outTxt: null,
         lands: 18,
         level: null,
         top: 20,
@@ -113,15 +113,48 @@ function loadSeedPhaseReduceMap() {
         if (seedId <= 0 || map.has(seedId)) continue;
         const phases = parseGrowPhases(p.grow_phases);
         if (phases.length === 0) continue;
-        map.set(seedId, phases[0]); // 普通肥减少一个阶段：以首个阶段时长为准
+        map.set(seedId, {
+            phaseReduce: phases[0], // 普通肥减少一个阶段：以首个阶段时长为准
+            seasons: toNum(p.seasons, 1), // 季数
+            phases, // 所有阶段时长
+        });
     }
     return map;
 }
 
 function calcEffectiveGrowTime(growSec, seedId, seedPhaseReduceMap) {
-    const reduce = toNum(seedPhaseReduceMap.get(seedId), 0);
+    const data = seedPhaseReduceMap.get(seedId);
+    if (!data) return growSec;
+    const reduce = data.phaseReduce;
     if (reduce <= 0) return growSec;
     return Math.max(1, growSec - reduce);
+}
+
+/**
+ * 计算多季作物的总生长时间
+ * seasons=2 时，第一季结束后，第二季跳过前两个阶段
+ * 总时间 = 第一季完整时间 + 第二季时间
+ */
+function calcTotalGrowTime(seedId, seedPhaseReduceMap) {
+    const data = seedPhaseReduceMap.get(seedId);
+    if (!data) return null;
+    const { seasons, phases } = data;
+    if (seasons <= 1 || phases.length === 0) return null;
+    
+    // 第一季：所有阶段时间之和
+    const season1Time = phases.reduce((sum, t) => sum + t, 0);
+    
+    // 第二季：跳过前两个阶段，只算剩余阶段时间之和
+    const season2Phases = phases.slice(2);
+    if (season2Phases.length === 0) return null;
+    const season2Time = season2Phases.reduce((sum, t) => sum + t, 0);
+    
+    return {
+        season1Time,
+        season2Time,
+        totalTime: season1Time + season2Time,
+        seasons,
+    };
 }
 
 function formatSec(sec) {
@@ -163,13 +196,28 @@ function buildRows(rawSeeds, lands, seedPhaseReduceMap) {
             continue;
         }
 
-        const expPerCycle = expHarvest;
-        const reduceSec = toNum(seedPhaseReduceMap.get(seedId), 0);
+        // 多季作物计算
+        const multiSeason = calcTotalGrowTime(seedId, seedPhaseReduceMap);
+        const isMultiSeason = multiSeason && multiSeason.seasons >= 2;
+        const totalGrowTime = isMultiSeason ? multiSeason.totalTime : growTimeSec;
+        
+        // 多季作物：每次收获经验 * 季数
+        const expPerCycle = isMultiSeason ? expHarvest * multiSeason.seasons : expHarvest;
+        const reduceSec = toNum(seedPhaseReduceMap.get(seedId)?.phaseReduce || 0, 0);
         if (reduceSec <= 0) missingPhaseReduceCount++;
-        const growTimeNormalFert = calcEffectiveGrowTime(growTimeSec, seedId, seedPhaseReduceMap);
+        
+        // 多季作物施肥后的时间：假设施肥只影响第一季
+        let growTimeNormalFert;
+        if (isMultiSeason) {
+            // 第一季施肥减少时间，第二季不减少
+            const season1Reduced = Math.max(1, multiSeason.season1Time - reduceSec);
+            growTimeNormalFert = season1Reduced + multiSeason.season2Time;
+        } else {
+            growTimeNormalFert = calcEffectiveGrowTime(growTimeSec, seedId, seedPhaseReduceMap);
+        }
 
         // 整个农场一轮 = 生长时间 + 本轮全部地块种植耗时
-        const cycleSecNoFert = growTimeSec + plantSecondsNoFert;
+        const cycleSecNoFert = totalGrowTime + plantSecondsNoFert;
         const cycleSecNormalFert = growTimeNormalFert + plantSecondsNormalFert;
 
         const farmExpPerHourNoFert = (lands * expPerCycle / cycleSecNoFert) * 3600;
@@ -191,6 +239,10 @@ function buildRows(rawSeeds, lands, seedPhaseReduceMap) {
             expPerCycle,
             growTimeSec,
             growTimeStr: s.growTimeStr || formatSec(growTimeSec),
+            isMultiSeason,
+            seasons: isMultiSeason ? multiSeason.seasons : 1,
+            totalGrowTime,
+            totalGrowTimeStr: formatSec(totalGrowTime),
             normalFertReduceSec: reduceSec,
             growTimeNormalFert,
             growTimeNormalFertStr: formatSec(growTimeNormalFert),
@@ -432,26 +484,32 @@ function main() {
     const topFert = pickTop(rows, 'farmExpPerHourNormalFert', opts.top);
     const currentLevel = payload.currentLevel;
 
-    writeJson(path.resolve(opts.outJson), payload);
-    writeCsv(path.resolve(opts.outCsv), rows);
-    writeSummaryTxt(
-        path.resolve(opts.outTxt),
-        opts,
-        {
-            input: payload.input,
-            plantSecondsNoFert: payload.config.plantSecondsNoFert,
-            plantSecondsNormalFert: payload.config.plantSecondsNormalFert,
-            missingPhaseReduceCount: payload.stats.missingPhaseReduceCount,
-        },
-        topNo,
-        topFert,
-        currentLevel
-    );
+    if (opts.outJson) {
+        writeJson(path.resolve(opts.outJson), payload);
+        console.log(`[收益率] JSON: ${path.resolve(opts.outJson)}`);
+    }
+    if (opts.outCsv) {
+        writeCsv(path.resolve(opts.outCsv), rows);
+        console.log(`[收益率] CSV : ${path.resolve(opts.outCsv)}`);
+    }
+    if (opts.outTxt) {
+        writeSummaryTxt(
+            path.resolve(opts.outTxt),
+            opts,
+            {
+                input: payload.input,
+                plantSecondsNoFert: payload.config.plantSecondsNoFert,
+                plantSecondsNormalFert: payload.config.plantSecondsNormalFert,
+                missingPhaseReduceCount: payload.stats.missingPhaseReduceCount,
+            },
+            topNo,
+            topFert,
+            currentLevel
+        );
+        console.log(`[收益率] TXT : ${path.resolve(opts.outTxt)}`);
+    }
 
     console.log(`[收益率] 计算完成，共 ${rows.length} 条（跳过 ${payload.stats.skippedCount} 条）`);
-    console.log(`[收益率] JSON: ${path.resolve(opts.outJson)}`);
-    console.log(`[收益率] CSV : ${path.resolve(opts.outCsv)}`);
-    console.log(`[收益率] TXT : ${path.resolve(opts.outTxt)}`);
     if (currentLevel) {
         console.log(`[收益率] Lv${opts.level} 最优(不施肥): ${currentLevel.bestNoFert.name} ${currentLevel.bestNoFert.expPerHour} exp/h`);
         console.log(`[收益率] Lv${opts.level} 最优(普通肥): ${currentLevel.bestNormalFert.name} ${currentLevel.bestNormalFert.expPerHour} exp/h`);

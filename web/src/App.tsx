@@ -24,7 +24,7 @@ import {
   Backpack,
   Search,
 } from 'lucide-react';
-import { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
+import { useState, useEffect, useRef, memo, useMemo } from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -126,6 +126,8 @@ const landLevelStyles: Record<number, { bg: string; border: string; label: strin
 const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, any> }) {
   const plantName = land.plant?.name || '空地';
   const plantConfig = plantsData[land.plant?.id];
+  const season = land.plant?.season;
+  const totalSeasons = plantConfig?.seasons;
   const phaseList = getPhaseList(land.plant, plantConfig);
   const isMature = phaseList.length > 0 && phaseList[phaseList.length - 1].isPast;
   const isWithered = land.plant?.phases?.some((p: any) => p.phase === 7);
@@ -179,6 +181,7 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
           <span className="font-semibold truncate text-foreground flex items-center gap-1">
             {fruitImgUrl && <img src={fruitImgUrl} alt="" className="w-4 h-4 object-contain shrink-0" />}
             {plantName}
+            {season && totalSeasons && <span className="text-[10px] text-orange-500 font-normal">{season}/{totalSeasons}</span>}
           </span>
         </div>
         {land.plant?.mutant_config_ids?.length ? (
