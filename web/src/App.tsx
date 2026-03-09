@@ -891,6 +891,7 @@ function getMutantLabel(mutant: any): string | null {
     2: '❤️',
     3: '🌑',
     4: '💧',
+    5: '🟡',
   };
   const low = mutant?.low ?? mutant;
   return map[low] || null;
@@ -902,6 +903,7 @@ function getMutantEffect(mutant: any): string | null {
     2: '数量x3',
     3: '售价x2',
     4: '数量x2',
+    5: '金豆',
   };
   const low = mutant?.low ?? mutant;
   return map[low] || null;
