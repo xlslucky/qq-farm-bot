@@ -123,7 +123,8 @@ const landLevelStyles: Record<number, { bg: string; border: string; label: strin
   4: { bg: 'bg-yellow-100 dark:bg-yellow-700/50', border: 'border-yellow-300 dark:border-yellow-600', label: '金土', tag: 'bg-yellow-200 text-yellow-700 dark:bg-yellow-700/50 dark:text-yellow-200' },
 };
 
-const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plantsData: Record<number, any> }) {
+const LandCard = memo(function LandCard({ land, plantsData, seeds, onPlant }: { land: any; plantsData: Record<number, any>; seeds: any[]; onPlant: (landId: number, seedId: number) => void }) {
+  const [showSeedSelect, setShowSeedSelect] = useState(false);
   const plantName = land.plant?.name || '空地';
   const plantConfig = plantsData[land.plant?.id];
   const season = land.plant?.season;
@@ -327,11 +328,50 @@ const LandCard = memo(function LandCard({ land, plantsData }: { land: any; plant
 
         </>
       ) : (
-        <div className="flex items-center justify-center py-3">
+        <div className="flex flex-col items-center justify-center py-2">
           <div className="text-center">
             <Sprout className="h-5 w-5 mx-auto text-muted-foreground/50" />
             <p className="text-[10px] text-muted-foreground mt-1">空地</p>
           </div>
+          {seeds.length > 0 && (
+            <>
+              {!showSeedSelect ? (
+                <button
+                  onClick={() => setShowSeedSelect(true)}
+                  className="mt-2 text-[10px] px-2 py-1 bg-green-100 text-green-600 rounded-full hover:bg-green-200 dark:bg-green-900/50 dark:text-green-400 dark:hover:bg-green-800/50 transition-colors"
+                >
+                  种植
+                </button>
+              ) : (
+                <div className="mt-2 w-full">
+                  <select
+                    className="w-full text-[10px] px-2 py-1 rounded border border-border bg-background"
+                    onChange={(e) => {
+                      const seedId = parseInt(e.target.value);
+                      if (seedId) {
+                        onPlant(land.id, seedId);
+                        setShowSeedSelect(false);
+                      }
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>选择种子</option>
+                    {seeds.map((seed) => (
+                      <option key={seed.id} value={seed.id}>
+                        {seed.name} x{seed.count}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setShowSeedSelect(false)}
+                    className="mt-1 text-[9px] text-muted-foreground hover:text-foreground"
+                  >
+                    取消
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>
@@ -369,6 +409,11 @@ function Dashboard() {
 
   const { user, lands, isConnected, backpack } = state || {};
   const unlockedLands = lands?.filter((l: any) => l.unlocked) || [];
+  const seeds = backpack?.filter((i: any) => i.type === 5) || [];
+
+  const handlePlant = async (landId: number, seedId: number) => {
+    await triggerAction('plant', { landId, seedId });
+  };
 
   const notifiedRef = useRef<Set<string>>(new Set());
   
@@ -783,7 +828,7 @@ function Dashboard() {
           <CardContent className="p-4 pt-0">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {unlockedLands.map((land: any) => (
-              <LandCard key={land.id} land={land} plantsData={plantsData} />
+              <LandCard key={land.id} land={land} plantsData={plantsData} seeds={seeds} onPlant={handlePlant} />
             ))}
           </div>
         </CardContent>

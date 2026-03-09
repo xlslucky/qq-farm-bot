@@ -758,4 +758,5 @@ module.exports = {
     fertilize,
     harvest,
     getAllLands,
+    plantSeeds,
 };

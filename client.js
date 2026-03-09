@@ -281,6 +281,25 @@ async function main() {
                 } catch (e) {
                     console.log('[Sync] Batch use item error:', e.message);
                 }
+            } else if (action.type === 'plant') {
+                const { landId, seedId } = action.data;
+                const { getUserState } = require('./src/network');
+                const state = getUserState();
+                if (!state.gid) {
+                    console.log('[Sync] Not logged in, skipping plant');
+                    return;
+                }
+                if (!landId || !seedId) {
+                    console.log('[Sync] Invalid plant params:', action.data);
+                    return;
+                }
+                const { plantSeeds } = require('./src/farm');
+                try {
+                    const result = await plantSeeds(seedId, [landId]);
+                    console.log(`[Sync] Planted seed ${seedId} on land ${landId}, result: ${result}`);
+                } catch (e) {
+                    console.log('[Sync] Plant error:', e.message);
+                }
             }
         });
     } else {
