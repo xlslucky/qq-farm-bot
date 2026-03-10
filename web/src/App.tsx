@@ -955,7 +955,7 @@ function getMutantEffect(mutant: any): string | null {
   return map[low] || null;
 }
 
-function BackpackPanel({ mutantFruitMap }: { mutantFruitMap: Record<number, string> }) {
+function BackpackPanel() {
   const { state, loading } = useFarmState();
   const [refreshing, setRefreshing] = useState(false);
   const [showJson, setShowJson] = useState(false);
@@ -1007,8 +1007,8 @@ function BackpackPanel({ mutantFruitMap }: { mutantFruitMap: Record<number, stri
           {[
             { name: '果食', list: items.filter((i: any) => i.type === 6) },
             { name: '种子', list: items.filter((i: any) => i.type === 5) },
-            { name: '超变果食', list: items.filter((i: any) => i.type === 0) },
-            { name: '道具', list: items.filter((i: any) => i.type !== 6 && i.type !== 5 && i.type !== 0) },
+            { name: '超变果食', list: items.filter((i: any) => i.type === 17) },
+            { name: '道具', list: items.filter((i: any) => i.type !== 6 && i.type !== 5 && i.type !== 17) },
           ].map(({ name, list }) => {
             const sortedItems = [...list].sort((a, b) => a.id - b.id || a.uid - b.uid);
             if (sortedItems.length === 0) return null;
@@ -1025,12 +1025,11 @@ function BackpackPanel({ mutantFruitMap }: { mutantFruitMap: Record<number, stri
                       const id = item.id;
                       const type = item.type;
                       if (type === 5 && id >= 20000) return (id - 20000) || null;
-                      if ((type === 6 || type === 0) && id >= 40000) return (id - 40000) || null;
+                      if ((type === 6 || type === 17) && id >= 40000) return (id - 40000) || null;
                       return null;
                     };
                     const cropNum = getSeedImage();
                     const imgUrl = cropNum ? `/seed_images/${cropNum}.png` : null;
-                    const displayName = item.type === 0 && mutantFruitMap[item.id] ? mutantFruitMap[item.id] : item.name;
                     
                     return (
                     <Card key={item.uid || item.id} className="overflow-hidden bg-card/80 hover:bg-card transition-colors">
@@ -1039,7 +1038,7 @@ function BackpackPanel({ mutantFruitMap }: { mutantFruitMap: Record<number, stri
                           {imgUrl && (
                             <img src={imgUrl} alt="" className="w-6 h-6 object-contain shrink-0" />
                           )}
-                          <p className="font-medium text-xs truncate" title={item.name}>{displayName}</p>
+                          <p className="font-medium text-xs truncate" title={item.name}>{item.name}</p>
                           <span className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded shrink-0">
                             x{item.count}
                           </span>
@@ -1526,28 +1525,6 @@ function StartPage() {
 
 export default function App() {
   const { running, loading: botLoading } = useBotStatus();
-  const [mutantFruitMap, setMutantFruitMap] = useState<Record<number, string>>({});
-
-  useEffect(() => {
-    fetch('/gameConfig/Plant.json')
-      .then(r => r.json())
-      .then((plantData: PlantData[]) => {
-        const mutantMap: Record<number, string> = {};
-        plantData.forEach((p: PlantData) => {
-          if (p.mutant) {
-            const parts = p.mutant.split(':');
-            if (parts.length >= 2) {
-              const mutantFruitId = parseInt(parts[1], 10);
-              if (!isNaN(mutantFruitId)) {
-                mutantMap[mutantFruitId] = p.name;
-              }
-            }
-          }
-        });
-        setMutantFruitMap(mutantMap);
-      })
-      .catch(() => {});
-  }, []);
 
   if (botLoading) {
     return (
@@ -1624,7 +1601,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="backpack">
-            <BackpackPanel mutantFruitMap={mutantFruitMap} />
+            <BackpackPanel />
           </TabsContent>
 
           <TabsContent value="friends">
