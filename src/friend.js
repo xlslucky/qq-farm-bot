@@ -365,7 +365,16 @@ function analyzeFriendLands(lands, myGid, friendName = '') {
                 // 只偷取成熟时间 >= 12小时(43200秒)的高价值作物，或新春红包(1021542)
                 // const plantGrowTime = getPlantGrowTime(plantId);
                 // if (plantGrowTime >= 28800 || plantId === 1021542) {
-                if (getPlantGrowTime(plantId) >= 43200 || plantId === 1021542) {
+                // 黄金变异
+                const isGolden = plant.mutant_config_ids?.includes('5');
+                // 春节红包
+                const isSpring = plantId === 1021542
+                // 大于等于 12 小时
+                const isStealable12 = getPlantGrowTime(plantId) >= 43200
+                // 大于等于 24 小时
+                const isStealable24 = getPlantGrowTime(plantId) >= 86400
+                const isStealable = false
+                if (isStealable || isSpring || isGolden) {
                     result.stealable.push(id);
                     const plantName = getPlantName(plantId) || plant.name || '未知';
                     result.stealableInfo.push({ landId: id, plantId, name: plantName });
