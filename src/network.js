@@ -194,7 +194,13 @@ function handleNotify(msg) {
                 reason = notify.reason_message || '未知';
                 log('推送', `原因: ${reason}`);
             } catch (e) { }
-            pushNotification('QQ经典农场', `被踢下线! 原因: ${reason}`, { level: 'critical', call: '1' });
+            if (CONFIG.barkDisconnectNotify) {
+                if (CONFIG.barkKey) {
+                    pushNotification('QQ经典农场', `被踢下线! 原因: ${reason}`, { level: 'critical', call: '1' });
+                } else {
+                    log('推送', '已开启掉线通知但未设置 Bark Key');
+                }
+            }
             return;
         }
 

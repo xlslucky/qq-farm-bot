@@ -1218,6 +1218,30 @@ function SettingsPage() {
         </div>
       </Card>
 
+      <div className="text-sm font-medium text-muted-foreground px-1">推送通知</div>
+
+      <Card className="p-4 space-y-3">
+        <div>
+          <p className="text-sm mb-1">Bark Key</p>
+          <input
+            type="text"
+            className="w-full h-8 rounded border border-input bg-background px-2 text-sm"
+            placeholder="请输入 Bark Key"
+            value={settings.barkKey || ''}
+            onChange={(e) => updateSettings({ barkKey: e.target.value })}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm">掉线通知</span>
+          <input
+            type="checkbox"
+            className="w-4 h-4 rounded accent-primary"
+            checked={settings.barkDisconnectNotify || false}
+            onChange={(e) => updateSettings({ barkDisconnectNotify: e.target.checked })}
+          />
+        </div>
+      </Card>
+
       <div className="text-sm font-medium text-muted-foreground px-1">自己农场</div>
 
       <Card className="p-4">
@@ -1294,6 +1318,8 @@ function StartPage() {
     autoFriendVisit: false,
     autoHelp: false,
     autoSteal: false,
+    barkKey: '',
+    barkDisconnectNotify: false,
   });
 
   const handleStart = async () => {
@@ -1444,7 +1470,7 @@ function StartPage() {
                   <input
                     type="checkbox"
                     className="w-4 h-4 rounded accent-primary"
-                    checked={autoSettings[item.key as keyof typeof autoSettings]}
+                    checked={!!autoSettings[item.key as keyof typeof autoSettings]}
                     onChange={(e) => setAutoSettings({ ...autoSettings, [item.key]: e.target.checked })}
                     disabled={running}
                   />
@@ -1466,13 +1492,35 @@ function StartPage() {
                   <input
                     type="checkbox"
                     className="w-4 h-4 rounded accent-primary"
-                    checked={autoSettings[item.key as keyof typeof autoSettings]}
+                    checked={!!autoSettings[item.key as keyof typeof autoSettings]}
                     onChange={(e) => setAutoSettings({ ...autoSettings, [item.key]: e.target.checked })}
                     disabled={running}
                   />
                   <span className="text-sm">{item.label}</span>
                 </label>
               ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium">推送通知</div>
+            <div className="space-y-2">
+              <Input
+                placeholder="Bark Key (可选)"
+                value={autoSettings.barkKey}
+                onChange={(e) => setAutoSettings({ ...autoSettings, barkKey: e.target.value })}
+                disabled={running}
+              />
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded accent-primary"
+                  checked={autoSettings.barkDisconnectNotify}
+                  onChange={(e) => setAutoSettings({ ...autoSettings, barkDisconnectNotify: e.target.checked })}
+                  disabled={running}
+                />
+                <span className="text-sm">🔔 掉线通知</span>
+              </label>
             </div>
           </div>
 

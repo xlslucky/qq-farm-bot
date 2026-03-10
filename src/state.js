@@ -38,6 +38,8 @@ class FarmState extends EventEmitter {
             autoHelp: CONFIG.autoHelp,
             autoSteal: CONFIG.autoSteal,
             autoSell: CONFIG.autoSell,
+            barkKey: CONFIG.barkKey || '',
+            barkDisconnectNotify: CONFIG.barkDisconnectNotify || false,
         };
         this.isConnected = false;
         this.serverTime = 0;
@@ -164,6 +166,10 @@ class FarmState extends EventEmitter {
         if (settings.autoFriendVisit != null) CONFIG.autoFriendVisit = settings.autoFriendVisit;
         if (settings.autoHelp != null) CONFIG.autoHelp = settings.autoHelp;
         if (settings.autoSteal != null) CONFIG.autoSteal = settings.autoSteal;
+        
+        // Bark 推送设置
+        if (settings.barkKey != null) CONFIG.barkKey = settings.barkKey;
+        if (settings.barkDisconnectNotify != null) CONFIG.barkDisconnectNotify = settings.barkDisconnectNotify;
         
         // 发送 settingsUpdate 到机器人
         const { getIo } = require('./webApi');

@@ -82,6 +82,14 @@ app.post('/api/start-bot', (req, res) => {
     if (autoSettings.autoHelp === false) args.push('--no-auto-help');
     if (autoSettings.autoSteal === false) args.push('--no-auto-steal');
     if (autoSettings.autoSell === false) args.push('--no-auto-sell');
+    if (autoSettings.barkKey) args.push('--bark', autoSettings.barkKey);
+    if (autoSettings.barkDisconnectNotify) args.push('--bark-disconnect-notify');
+
+    // 更新 farmState.settings 以便设置页面能读取
+    farmState.updateSettings({
+        barkKey: autoSettings.barkKey || '',
+        barkDisconnectNotify: !!autoSettings.barkDisconnectNotify,
+    });
 
     console.log(`[Web] Starting bot: node ${args.join(' ')}`);
 

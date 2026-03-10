@@ -120,6 +120,9 @@ function parseArgs(args) {
         if (args[i] === '--bark' && args[i + 1]) {
             CONFIG.barkKey = args[++i];
         }
+        if (args[i] === '--bark-disconnect-notify') {
+            CONFIG.barkDisconnectNotify = true;
+        }
         if (args[i] === '--api') {
             options.enableApi = true;
         }
@@ -212,6 +215,8 @@ async function main() {
             if (settings.autoHelp != null) CONFIG.autoHelp = settings.autoHelp;
             if (settings.autoSteal != null) CONFIG.autoSteal = settings.autoSteal;
             if (settings.autoSell != null) CONFIG.autoSell = settings.autoSell;
+            if (settings.barkKey != null) CONFIG.barkKey = settings.barkKey;
+            if (settings.barkDisconnectNotify != null) CONFIG.barkDisconnectNotify = settings.barkDisconnectNotify;
         });
         socket.on('action', async (action) => {
             console.log('[Sync] Received action:', action);

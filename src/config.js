@@ -14,6 +14,7 @@ const CONFIG = {
     friendCheckInterval: 10000,   // 好友巡查完成后等待间隔 (可通过 --friend-interval 修改, 最低1秒)
     forceLowestLevelCrop: false,  // 开启后固定种最低等级作物（通常是白萝卜），跳过经验效率分析
     barkKey: '',                 // Bark 推送 key (可通过 --bark 设置)
+    barkDisconnectNotify: false, // 掉线时推送 Bark 通知
 
     // ============ 自动化配置 ============
     // 自己农场

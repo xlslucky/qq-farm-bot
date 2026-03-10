@@ -108,6 +108,8 @@ export interface Settings {
   autoHelp: boolean;
   autoSteal: boolean;
   autoSell: boolean;
+  barkKey: string;
+  barkDisconnectNotify: boolean;
 }
 
 export interface BackpackItem {
