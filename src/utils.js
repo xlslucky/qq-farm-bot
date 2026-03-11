@@ -62,7 +62,11 @@ function logWarn(tag, msg) {
 }
 
 async function pushNotification(title, content, opts = {}) {
-    if (!CONFIG.barkKey) return;
+    if (!CONFIG.barkDisconnectNotify) return
+    if (!CONFIG.barkKey) {
+        log('推送', '已开启掉线通知但未设置 Bark Key');
+        return;
+    }
     try {
         const url = `https://api.day.app/${CONFIG.barkKey}/${encodeURIComponent(title)}/${encodeURIComponent(content)}`;
         const params = new URLSearchParams();
