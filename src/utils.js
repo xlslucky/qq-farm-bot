@@ -62,9 +62,13 @@ function logWarn(tag, msg) {
 }
 
 async function pushNotification(title, content, opts = {}) {
-    if (!CONFIG.barkDisconnectNotify) return
+    console.log(`[Bark] pushNotification called: title=${title}, content=${content}, barkDisconnectNotify=${CONFIG.barkDisconnectNotify}, barkKey=${CONFIG.barkKey ? CONFIG.barkKey : 'empty'}`);
+    if (!CONFIG.barkDisconnectNotify) {
+        console.log('[Bark] 推送已禁用 (barkDisconnectNotify=false)');
+        return;
+    }
     if (!CONFIG.barkKey) {
-        log('推送', '已开启掉线通知但未设置 Bark Key');
+        console.log('[Bark] 已开启掉线通知但未设置 Bark Key');
         return;
     }
     try {

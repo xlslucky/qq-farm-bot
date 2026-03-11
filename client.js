@@ -150,6 +150,7 @@ function parseArgs(args) {
 async function main() {
     const args = process.argv.slice(2);
     const options = parseArgs(args);
+    console.log(`[Config] barkKey=${CONFIG.barkKey ? 'set' : 'empty'}, barkDisconnectNotify=${CONFIG.barkDisconnectNotify}`);
     let usedQrLogin = false;
 
     // 设置状态同步

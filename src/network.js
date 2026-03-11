@@ -194,7 +194,6 @@ function handleNotify(msg) {
                 reason = notify.reason_message || '未知';
                 log('推送', `原因: ${reason}`);
             } catch (e) { }
-            pushNotification('QQ经典农场', `被踢下线! 原因: ${reason}`, { level: 'critical', call: '1' });
             return;
         }
 
@@ -476,9 +475,10 @@ function connect(code, onLoginSuccess) {
     ws.on('close', (code, reason) => {
         console.log(`[WS] 连接关闭 (code=${code})`);
         cleanup();
+        pushNotification('QQ经典农场', `连接关闭! code=${code}`, { level: 'critical', call: '1' });
         if (code === 1006) {
             console.log('[WS] 连接异常关闭，退出进程');
-            process.exit(1);
+            setTimeout(() => process.exit(1), 1000);
         }
     });
 

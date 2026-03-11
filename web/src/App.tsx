@@ -1008,7 +1008,7 @@ function BackpackPanel() {
             { name: '果食', list: items.filter((i: any) => i.type === 6) },
             { name: '种子', list: items.filter((i: any) => i.type === 5) },
             { name: '超变果食', list: items.filter((i: any) => i.type === 17) },
-            { name: '道具', list: items.filter((i: any) => i.type !== 6 && i.type !== 5 && i.type !== 17) },
+            { name: '道具', list: items.filter((i: any) => i.type !== 6 && i.type !== 5 && i.type !== 17 && ![1001, 1002, 1011, 1012, 1101].includes(i.id)) },
           ].map(({ name, list }) => {
             const sortedItems = [...list].sort((a, b) => a.id - b.id || a.uid - b.uid);
             if (sortedItems.length === 0) return null;
@@ -1304,6 +1304,14 @@ function StartPage() {
   const [friendInterval, setFriendInterval] = useState(10);
   const [starting, setStarting] = useState(false);
   const [message, setMessage] = useState('');
+  const getStoredAutoSettings = () => {
+    try {
+      const stored = localStorage.getItem('autoSettings');
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return {};
+  };
+  const storedSettings = getStoredAutoSettings();
   const [autoSettings, setAutoSettings] = useState({
     autoHarvest: true,
     autoRemove: true,
@@ -1318,8 +1326,8 @@ function StartPage() {
     autoFriendVisit: false,
     autoHelp: false,
     autoSteal: false,
-    barkKey: '',
-    barkDisconnectNotify: false,
+    barkKey: storedSettings.barkKey || '',
+    barkDisconnectNotify: storedSettings.barkDisconnectNotify || false,
   });
 
   const handleStart = async () => {
@@ -1329,6 +1337,7 @@ function StartPage() {
     }
     setStarting(true);
     setMessage('');
+    localStorage.setItem('autoSettings', JSON.stringify(autoSettings));
     const result = await startBot(code, platform, botInterval, friendInterval, autoSettings);
     if (result.success) {
       setMessage('🤖 Bot 启动中...');
