@@ -10,7 +10,9 @@
     "build": "node esbuild.config.mjs",
     "web": "node startWeb.js",
     "dev": "cd web && npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "next-decode:build": "cd next-decode && npm run build",
+    "next-decode:start": "cd next-decode && npm run start"
   },
   "dependencies": {
     "axios": "^1.13.5",
