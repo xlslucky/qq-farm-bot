@@ -1,4 +1,7 @@
 import protobuf from 'protobufjs';
+import path from 'path';
+
+const protoDir = path.join(process.cwd(), 'public', 'proto');
 
 let root: any = null;
 let loadingPromise: Promise<any> | null = null;
@@ -11,16 +14,16 @@ export async function loadProto() {
     loadingPromise = (async () => {
         root = new protobuf.Root();
         await root.load([
-            '../proto/game.proto',
-            '../proto/userpb.proto',
-            '../proto/plantpb.proto',
-            '../proto/corepb.proto',
-            '../proto/shoppb.proto',
-            '../proto/friendpb.proto',
-            '../proto/visitpb.proto',
-            '../proto/notifypb.proto',
-            '../proto/taskpb.proto',
-            '../proto/itempb.proto',
+            path.join(protoDir, 'game.proto'),
+            path.join(protoDir, 'userpb.proto'),
+            path.join(protoDir, 'plantpb.proto'),
+            path.join(protoDir, 'corepb.proto'),
+            path.join(protoDir, 'shoppb.proto'),
+            path.join(protoDir, 'friendpb.proto'),
+            path.join(protoDir, 'visitpb.proto'),
+            path.join(protoDir, 'notifypb.proto'),
+            path.join(protoDir, 'taskpb.proto'),
+            path.join(protoDir, 'itempb.proto'),
         ], { keepCase: true });
 
         types.GateMessage = root.lookupType('gatepb.Message');
