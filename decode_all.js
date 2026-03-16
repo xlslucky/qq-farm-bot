@@ -20,16 +20,24 @@ async function main() {
         console.log(`Cleared ${existingFiles.length} files from ${resDir}\n`);
     }
 
-    const files = fs.readdirSync(hexDir).filter(f => f.endsWith('.bin')).sort();
+    const binFiles = fs.readdirSync(hexDir).filter(f => f.endsWith('.bin')).sort();
+    const txtFiles = fs.readdirSync(hexDir).filter(f => f.endsWith('.txt')).sort();
+    const files = [...binFiles.map(f => ({ name: f, isHex: false })), ...txtFiles.map(f => ({ name: f, isHex: true }))];
 
-    console.log(`Found ${files.length} binary files to decode\n`);
+    console.log(`Found ${binFiles.length} binary files and ${txtFiles.length} hex files to decode\n`);
     console.log('='.repeat(80));
 
-    for (const file of files) {
+    for (const { name: file, isHex } of files) {
         const filePath = path.join(hexDir, file);
-        const buf = fs.readFileSync(filePath);
+        let buf;
+        if (isHex) {
+            const hexContent = fs.readFileSync(filePath, 'utf-8').replace(/\s+/g, '').trim();
+            buf = Buffer.from(hexContent, 'hex');
+        } else {
+            buf = fs.readFileSync(filePath);
+        }
         
-        console.log(`\n>>> ${file}`);
+        console.log(`\n>>> ${file}${isHex ? ' (hex)' : ''}`);
         
         try {
             const output = await decodeGateMessage(buf, root);
@@ -38,7 +46,7 @@ async function main() {
             if (output.includes('未能自动推断类型')) {
                 suffix = '-unknown.txt';
             }
-            const outFile = file.replace('.bin', suffix);
+            const outFile = file.replace(/\.(bin|txt)$/, suffix);
             const outPath = path.join(resDir, outFile);
             fs.writeFileSync(outPath, output);
             
