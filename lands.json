@@ -1,0 +1,1090 @@
+{
+  "lands": [
+    {
+      "id": "1",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773656071",
+            "phase_id": "21",
+            "weeds_time": "1773659764",
+            "insect_time": "1773661266"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773661831",
+            "phase_id": "24"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "2",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773656071",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773661831",
+            "phase_id": "24"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "3",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773654247",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773660007",
+            "phase_id": "24"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "4",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773654248",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773660008",
+            "phase_id": "24"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "5",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773656071",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773661831",
+            "phase_id": "24"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "6",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773656071",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773661831",
+            "phase_id": "24"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "7",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020025",
+        "name": "银杏树苗",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773653846",
+            "phase_id": "7"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773659606",
+            "phase_id": "37"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40025",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "is_shared": true,
+      "can_share": true,
+      "lands_level": "4"
+    },
+    {
+      "id": "8",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773654249",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773660009",
+            "phase_id": "24"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "is_shared": true,
+      "can_share": true,
+      "lands_level": "4"
+    },
+    {
+      "id": "9",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773654257",
+            "phase_id": "21"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773660017",
+            "phase_id": "24"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "is_shared": true,
+      "can_share": true,
+      "lands_level": "4"
+    },
+    {
+      "id": "10",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020025",
+        "name": "银杏树苗",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773653849",
+            "phase_id": "7",
+            "mutants": [
+              {
+                "mutant_time": "1773653849",
+                "mutant_config_id": "4"
+              }
+            ]
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773659609",
+            "phase_id": "37"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40025",
+        "fruit_num": "696",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "696",
+        "mutant_config_ids": [
+          "4"
+        ]
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "11",
+      "unlocked": true,
+      "level": "4",
+      "max_level": "4",
+      "buff": {
+        "plant_yield_bonus": "30000",
+        "planting_time_reduction": "2000",
+        "plant_exp_bonus": "2000"
+      },
+      "plant": {
+        "id": "1020109",
+        "name": "蝴蝶兰",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773657825",
+            "phase_id": "12",
+            "insect_time": "1773659502"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773663585",
+            "phase_id": "21",
+            "weeds_time": "1773666731"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773669345",
+            "phase_id": "24"
+          }
+        ],
+        "season": "2",
+        "fruit_id": "40109",
+        "fruit_num": "348",
+        "grow_sec": "23040",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "348"
+      },
+      "lands_level": "4"
+    },
+    {
+      "id": "12",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "69"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649300",
+            "phase_id": "6"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662260",
+            "phase_id": "8",
+            "insect_time": "1773669281"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675220",
+            "phase_id": "12",
+            "weeds_time": "1773675734"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694660",
+            "phase_id": "20",
+            "dry_time": "1773701394"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714100",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "13",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "70"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649596",
+            "phase_id": "20"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773669036",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "14",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "71"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649596",
+            "phase_id": "20"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773669036",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "1200",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "1200",
+        "mutant_config_ids": [
+          "4"
+        ]
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "15",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "72"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649597",
+            "phase_id": "20"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773669037",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "16",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "73"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649300",
+            "phase_id": "6"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662260",
+            "phase_id": "8",
+            "weeds_time": "1773670776"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675220",
+            "phase_id": "12",
+            "insect_time": "1773680260"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694660",
+            "phase_id": "20",
+            "dry_time": "1773699549",
+            "weeds_time": "1773713381"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714100",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "17",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "74"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649305",
+            "phase_id": "6"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662265",
+            "phase_id": "8",
+            "weeds_time": "1773668640"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675225",
+            "phase_id": "12"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694665",
+            "phase_id": "20",
+            "insect_time": "1773694771"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714105",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "18",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "75"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649305",
+            "phase_id": "6"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662265",
+            "phase_id": "8",
+            "mutants": [
+              {
+                "mutant_time": "1773662265",
+                "mutant_config_id": "2"
+              }
+            ]
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675225",
+            "phase_id": "12",
+            "dry_time": "1773686915",
+            "weeds_time": "1773685103"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694665",
+            "phase_id": "20"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714105",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "1800",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "1800",
+        "mutant_config_ids": [
+          "2"
+        ]
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "19",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "77"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649597",
+            "phase_id": "20",
+            "weeds_time": "1773658902",
+            "insect_time": "1773668579"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773669037",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "20",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "79"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649300",
+            "phase_id": "6",
+            "weeds_time": "1773662032"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662260",
+            "phase_id": "8",
+            "weeds_time": "1773665443",
+            "insect_time": "1773674408"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675220",
+            "phase_id": "12",
+            "dry_time": "1773683099",
+            "insect_time": "1773676471"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694660",
+            "phase_id": "20",
+            "dry_time": "1773695854"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714100",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "21",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "81"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649305",
+            "phase_id": "6",
+            "insect_time": "1773658860"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662265",
+            "phase_id": "8",
+            "weeds_time": "1773669435",
+            "insect_time": "1773670240"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675225",
+            "phase_id": "12",
+            "dry_time": "1773675265",
+            "insect_time": "1773693324"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694665",
+            "phase_id": "20",
+            "weeds_time": "1773699433",
+            "insect_time": "1773701779"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714105",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "22",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "83"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649305",
+            "phase_id": "6",
+            "weeds_time": "1773660644"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773662265",
+            "phase_id": "8",
+            "weeds_time": "1773670224"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773675225",
+            "phase_id": "12",
+            "weeds_time": "1773681359",
+            "insect_time": "1773683682"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773694665",
+            "phase_id": "20",
+            "insect_time": "1773702562"
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773714105",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "600",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "600"
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "23",
+      "unlocked": true,
+      "level": "3",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "85"
+      },
+      "buff": {
+        "plant_yield_bonus": "20000",
+        "planting_time_reduction": "1000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773649597",
+            "phase_id": "20",
+            "weeds_time": "1773667714",
+            "mutants": [
+              {
+                "mutant_time": "1773649597",
+                "mutant_config_id": "4"
+              }
+            ]
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773669037",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "1200",
+        "grow_sec": "77760",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "1200",
+        "mutant_config_ids": [
+          "4"
+        ]
+      },
+      "lands_level": "3"
+    },
+    {
+      "id": "24",
+      "unlocked": true,
+      "level": "2",
+      "max_level": "4",
+      "upgrade_condition": {
+        "need_level": "1",
+        "need_gold": "69"
+      },
+      "buff": {
+        "plant_yield_bonus": "10000"
+      },
+      "plant": {
+        "id": "1020031",
+        "name": "葫芦",
+        "phases": [
+          {
+            "phase": 2,
+            "begin_time": "1773650260",
+            "phase_id": "6",
+            "insect_time": "1773661553"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773664660",
+            "phase_id": "8"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773679060",
+            "phase_id": "12",
+            "dry_time": "1773691011"
+          },
+          {
+            "phase": 2,
+            "begin_time": "1773700660",
+            "phase_id": "20",
+            "mutants": [
+              {
+                "mutant_time": "1773700660",
+                "mutant_config_id": "4"
+              }
+            ]
+          },
+          {
+            "phase": 6,
+            "begin_time": "1773722260",
+            "phase_id": "19"
+          }
+        ],
+        "season": "1",
+        "fruit_id": "40031",
+        "fruit_num": "800",
+        "grow_sec": "86400",
+        "stealable": true,
+        "left_inorc_fert_times": "1",
+        "left_fruit_num": "800",
+        "mutant_config_ids": [
+          "4"
+        ]
+      },
+      "lands_level": "2"
+    }
+  ]
+}
